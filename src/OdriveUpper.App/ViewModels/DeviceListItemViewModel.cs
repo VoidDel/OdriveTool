@@ -16,5 +16,5 @@ public sealed class DeviceListItemViewModel(DeviceInfo info, IDeviceDriver drive
 
     public string DriverName => Info.DriverName;
 
-    public string Kind => Info.IsMock ? "Mock" : "Hardware";
+    public string Kind => Info.IsMock ? "Virtual" : "Hardware";
 }

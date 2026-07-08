@@ -8,7 +8,7 @@
 - 保留官方 ODrive 0.5.x ASCII 串口兼容通信路径。
 - 上位机内部保留多摩川逻辑命名空间：`axis0.tamagawa.*`。
 - 真实固件当前通过 `axis0.encoder.*` 暴露多摩川模式和位置，上位机驱动负责映射。
-- 已包含真实串口 ASCII 驱动和 Mock 驱动；真实硬件优先，Mock 作为无硬件开发备用。
+- 已移除 Mock 驱动，仅保留真实串口 ASCII 驱动。
 
 ## 项目结构
 
@@ -17,7 +17,7 @@ OdriveUpper.slnx
 src/
   OdriveUpper.App/       Avalonia UI / MVVM
   OdriveUpper.Core/      设备抽象、固件 Schema、遥测模型
-  OdriveUpper.Drivers/   设备驱动实现：Serial ASCII + Mock
+  OdriveUpper.Drivers/   设备驱动实现：Serial ASCII
 tests/
   OdriveUpper.Core.Tests/
 ```
@@ -34,7 +34,7 @@ dotnet build .\OdriveUpper.slnx
 dotnet run --project .\src\OdriveUpper.App\OdriveUpper.App.csproj
 ```
 
-启动后会先扫描真实 ODrive 串口设备，再加入 Mock 设备。当前 Windows 下优先通过 PnP 匹配 `VID_1209&PID_0D32` 的 ODrive COM 口。
+启动后只扫描真实 ODrive 串口设备。当前 Windows 下优先通过 PnP 匹配 `VID_1209&PID_0D32` 的 ODrive COM 口。
 
 ## 测试
 

@@ -8,7 +8,6 @@ using CommunityToolkit.Mvvm.Input;
 using OdriveUpper.Core.Devices;
 using OdriveUpper.Core.Firmware;
 using OdriveUpper.Core.Telemetry;
-using OdriveUpper.Drivers.Mock;
 using OdriveUpper.Drivers.Serial;
 
 namespace OdriveUpper.App.ViewModels;
@@ -17,8 +16,7 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly IReadOnlyList<IDeviceDriver> _drivers =
     [
-        new SerialAsciiOdriveDriver(),
-        new MockOdriveDriver()
+        new SerialAsciiOdriveDriver()
     ];
 
     private CancellationTokenSource? _telemetryCts;
@@ -244,7 +242,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         IsDeviceBusy = true;
         Devices.Clear();
-        ConnectionStatus = "正在后台扫描真实 ODrive 和 Mock 设备...";
+        ConnectionStatus = "正在后台扫描真实 ODrive 设备...";
 
         try
         {
@@ -275,7 +273,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 Devices.Add(item);
             }
 
-            SelectedDevice = Devices.FirstOrDefault(device => !device.Info.IsMock) ?? Devices.FirstOrDefault();
+            SelectedDevice = Devices.FirstOrDefault();
             ConnectionStatus = Devices.Count == 0 ? "未发现设备" : $"发现 {Devices.Count} 个设备";
         }
         finally
