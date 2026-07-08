@@ -47,6 +47,11 @@ public partial class MainWindowViewModel : ViewModelBase
     private string _parameterStatus = "连接设备后加载参数树";
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(RefreshDevicesCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ConnectSelectedDeviceCommand))]
+    private bool _isDeviceBusy;
+
+    [ObservableProperty]
     private DeviceListItemViewModel? _selectedDevice;
 
     [ObservableProperty]
@@ -229,30 +234,54 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         await InvokeCommandAsync("save_configuration", "保存配置至 ODrive 闪存");
     }
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunDeviceOperation))]
     private async Task RefreshDevicesAsync()
     {
-        Devices.Clear();
-        ConnectionStatus = "正在扫描真实 ODrive 和 Mock 设备...";
-
-        foreach (var driver in _drivers)
+        if (IsDeviceBusy)
         {
-            try
-            {
-                var devices = await driver.DiscoverAsync(CancellationToken.None);
-                foreach (var device in devices)
-                {
-                    Devices.Add(new DeviceListItemViewModel(device, driver));
-                }
-            }
-            catch (Exception ex)
-            {
-                LastCommandResult = $"{driver.Name} 扫描失败：{ex.Message}";
-            }
+            return;
         }
 
-        SelectedDevice = Devices.FirstOrDefault(device => !device.Info.IsMock) ?? Devices.FirstOrDefault();
-        ConnectionStatus = Devices.Count == 0 ? "未发现设备" : $"发现 {Devices.Count} 个设备";
+        IsDeviceBusy = true;
+        Devices.Clear();
+        ConnectionStatus = "正在后台扫描真实 ODrive 和 Mock 设备...";
+
+        try
+        {
+            var discovered = await Task.Run(async () =>
+            {
+                var results = new List<DeviceListItemViewModel>();
+                foreach (var driver in _drivers)
+                {
+                    try
+                    {
+                        var devices = await driver.DiscoverAsync(CancellationToken.None).ConfigureAwait(false);
+                        results.AddRange(devices.Select(device => new DeviceListItemViewModel(device, driver)));
+                    }
+                    catch (Exception ex)
+                    {
+                        results.Add(new DeviceListItemViewModel(
+                            new DeviceInfo($"error:{driver.Name}", $"{driver.Name} 扫描失败：{ex.Message}", string.Empty, string.Empty, driver.Name, true),
+                            driver));
+                    }
+                }
+
+                return results;
+            });
+
+            Devices.Clear();
+            foreach (var item in discovered.Where(item => !item.SerialNumber.StartsWith("error:", StringComparison.OrdinalIgnoreCase)))
+            {
+                Devices.Add(item);
+            }
+
+            SelectedDevice = Devices.FirstOrDefault(device => !device.Info.IsMock) ?? Devices.FirstOrDefault();
+            ConnectionStatus = Devices.Count == 0 ? "未发现设备" : $"发现 {Devices.Count} 个设备";
+        }
+        finally
+        {
+            IsDeviceBusy = false;
+        }
 
         if (SelectedDevice is not null)
         {
@@ -260,7 +289,7 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanRunDeviceOperation))]
     private async Task ConnectSelectedDeviceAsync()
     {
         if (SelectedDevice is null)
@@ -269,32 +298,55 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
+        IsDeviceBusy = true;
         _telemetryCts?.Cancel();
         if (_session is not null)
         {
             await _session.DisposeAsync();
         }
 
-        ConnectionStatus = $"正在连接 {SelectedDevice.SerialNumber}...";
-        _session = await SelectedDevice.Driver.ConnectAsync(SelectedDevice.SerialNumber, CancellationToken.None);
+        var selected = SelectedDevice;
+        ConnectionStatus = $"正在后台连接 {selected.SerialNumber}...";
 
-        var capabilities = await _session.GetCapabilitiesAsync(CancellationToken.None);
-        Capabilities.Clear();
-        Capabilities.Add($"自定义固件扩展：{ToYesNo(capabilities.SupportsCustomFirmwareExtensions)}");
-        Capabilities.Add($"官方 ODrive 兼容层：{ToYesNo(capabilities.SupportsOfficialOdriveCompatibility)}");
-        Capabilities.Add($"多摩川编码器：{ToYesNo(capabilities.SupportsTamagawaEncoder)}");
-        Capabilities.Add($"实时遥测：{ToYesNo(capabilities.SupportsLiveTelemetry)}");
-        Capabilities.Add($"保存配置：{ToYesNo(capabilities.SupportsConfigurationSave)}");
-        Capabilities.Add($"编码器类型：{string.Join(", ", capabilities.EncoderTypes)}");
-        Capabilities.Add($"特性标记：{string.Join(", ", capabilities.CustomFeatureFlags)}");
+        try
+        {
+            var connected = await Task.Run(async () =>
+            {
+                var session = await selected.Driver.ConnectAsync(selected.SerialNumber, CancellationToken.None).ConfigureAwait(false);
+                var capabilities = await session.GetCapabilitiesAsync(CancellationToken.None).ConfigureAwait(false);
+                var schema = await session.GetApiSchemaAsync(CancellationToken.None).ConfigureAwait(false);
+                return (session, capabilities, schema);
+            });
 
-        _schema = await _session.GetApiSchemaAsync(CancellationToken.None);
-        SchemaName = $"{_schema.DisplayName} / schema v{_schema.Version}";
-        BuildParameterTree(_schema);
+            _session = connected.session;
 
-        ConnectionStatus = $"已连接：{_session.Info.DisplayName}";
-        StartTelemetry(_session);
+            Capabilities.Clear();
+            Capabilities.Add($"自定义固件扩展：{ToYesNo(connected.capabilities.SupportsCustomFirmwareExtensions)}");
+            Capabilities.Add($"官方 ODrive 兼容层：{ToYesNo(connected.capabilities.SupportsOfficialOdriveCompatibility)}");
+            Capabilities.Add($"多摩川编码器：{ToYesNo(connected.capabilities.SupportsTamagawaEncoder)}");
+            Capabilities.Add($"实时遥测：{ToYesNo(connected.capabilities.SupportsLiveTelemetry)}");
+            Capabilities.Add($"保存配置：{ToYesNo(connected.capabilities.SupportsConfigurationSave)}");
+            Capabilities.Add($"编码器类型：{string.Join(", ", connected.capabilities.EncoderTypes)}");
+            Capabilities.Add($"特性标记：{string.Join(", ", connected.capabilities.CustomFeatureFlags)}");
+
+            _schema = connected.schema;
+            SchemaName = $"{_schema.DisplayName} / schema v{_schema.Version}";
+            BuildParameterTree(_schema);
+
+            ConnectionStatus = $"已连接：{_session.Info.DisplayName}";
+            StartTelemetry(_session);
+        }
+        catch (Exception ex)
+        {
+            ConnectionStatus = $"连接失败：{ex.Message}";
+        }
+        finally
+        {
+            IsDeviceBusy = false;
+        }
     }
+
+    private bool CanRunDeviceOperation() => !IsDeviceBusy;
 
     [RelayCommand(CanExecute = nameof(CanReadSelectedParameter))]
     private async Task ReadSelectedParameterAsync()
