@@ -343,13 +343,8 @@
                                 <TextBlock Text="给定目标输入" Classes="section-title"/>
                                 <Border Classes="card">
                                     <StackPanel Spacing="16">
-                                        <!-- Position Input -->
-                                        <StackPanel Spacing="8" IsVisible="{Binding ControlMode, Converter={StaticResource x:Null}}">
-                                            <!-- Simple visible trick: standard way to display inputs conditionally -->
-                                        </StackPanel>
-                                        
                                         <!-- We display all target sliders with description, representing values -->
-                                        <StackPanel Spacing="8">
+                                        <StackPanel Spacing="8" IsVisible="{Binding IsPositionMode}">
                                             <Grid ColumnDefinitions="*,Auto">
                                                 <TextBlock Text="目标位置 Target Position (Turns)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
                                                 <TextBlock Grid.Column="1" Text="{Binding TargetPosition, StringFormat={}{0:F2}}" Foreground="{DynamicResource AccentColor}" FontWeight="Bold"/>
@@ -357,7 +352,7 @@
                                             <Slider Minimum="-10" Maximum="10" Value="{Binding TargetPosition}" TickFrequency="0.1" IsSnapToTickEnabled="False"/>
                                         </StackPanel>
 
-                                        <StackPanel Spacing="8">
+                                        <StackPanel Spacing="8" IsVisible="{Binding IsVelocityMode}">
                                             <Grid ColumnDefinitions="*,Auto">
                                                 <TextBlock Text="目标速度 Target Velocity (RPM)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
                                                 <TextBlock Grid.Column="1" Text="{Binding TargetVelocity, StringFormat={}{0:F1}}" Foreground="{DynamicResource AccentColor}" FontWeight="Bold"/>
@@ -365,7 +360,7 @@
                                             <Slider Minimum="-1000" Maximum="1000" Value="{Binding TargetVelocity}" TickFrequency="10" IsSnapToTickEnabled="False"/>
                                         </StackPanel>
 
-                                        <StackPanel Spacing="8">
+                                        <StackPanel Spacing="8" IsVisible="{Binding IsTorqueMode}">
                                             <Grid ColumnDefinitions="*,Auto">
                                                 <TextBlock Text="目标力矩 Target Torque (Nm)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
                                                 <TextBlock Grid.Column="1" Text="{Binding TargetTorque, StringFormat={}{0:F2}}" Foreground="{DynamicResource AccentColor}" FontWeight="Bold"/>

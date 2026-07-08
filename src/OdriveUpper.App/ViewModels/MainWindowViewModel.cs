@@ -60,7 +60,14 @@ public partial class MainWindowViewModel : ViewModelBase
 
     // --- Control and Tuning Parameters ---
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsPositionMode))]
+    [NotifyPropertyChangedFor(nameof(IsVelocityMode))]
+    [NotifyPropertyChangedFor(nameof(IsTorqueMode))]
     private string _controlMode = "位置控制"; // 位置控制, 速度控制, 力矩控制
+
+    public bool IsPositionMode => ControlMode == "位置控制";
+    public bool IsVelocityMode => ControlMode == "速度控制";
+    public bool IsTorqueMode => ControlMode == "力矩控制";
 
     [ObservableProperty]
     private double _targetPosition = 0.0;
