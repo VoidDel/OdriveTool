@@ -260,7 +260,7 @@
                                 <Border Grid.Row="0" Grid.Column="0" Classes="card">
                                     <StackPanel>
                                         <TextBlock Text="母线电压 (VBUS)" Classes="card-title"/>
-                                        <TextBlock Text="24.12 V" Classes="card-value"/>
+                                        <TextBlock Text="{Binding VbusVoltageText}" Classes="card-value"/>
                                         <TextBlock Text="安全范围: 12.0 V - 56.0 V" Classes="card-sub"/>
                                     </StackPanel>
                                 </Border>
@@ -268,7 +268,7 @@
                                 <Border Grid.Row="0" Grid.Column="1" Classes="card">
                                     <StackPanel>
                                         <TextBlock Text="直轴测定电流 (IQ)" Classes="card-title"/>
-                                        <TextBlock Text="1.25 A" Classes="card-value"/>
+                                        <TextBlock Text="{Binding IqMeasuredText}" Classes="card-value"/>
                                         <TextBlock Text="测定力矩电流反馈" Classes="card-sub"/>
                                     </StackPanel>
                                 </Border>
@@ -276,7 +276,7 @@
                                 <Border Grid.Row="0" Grid.Column="2" Classes="card">
                                     <StackPanel>
                                         <TextBlock Text="编码器位置估算" Classes="card-title"/>
-                                        <TextBlock Text="10.45 Turns" Classes="card-value"/>
+                                        <TextBlock Text="{Binding EncoderPositionText}" Classes="card-value"/>
                                         <TextBlock Text="当前轴机械旋转圈数" Classes="card-sub"/>
                                     </StackPanel>
                                 </Border>
@@ -284,7 +284,7 @@
                                 <Border Grid.Row="1" Grid.Column="0" Classes="card">
                                     <StackPanel>
                                         <TextBlock Text="编码器速度估算" Classes="card-title"/>
-                                        <TextBlock Text="120.4 RPM" Classes="card-value"/>
+                                        <TextBlock Text="{Binding EncoderVelocityRpmText}" Classes="card-value"/>
                                         <TextBlock Text="当前转速 (圈/分钟)" Classes="card-sub"/>
                                     </StackPanel>
                                 </Border>
@@ -292,7 +292,7 @@
                                 <Border Grid.Row="1" Grid.Column="1" Classes="card">
                                     <StackPanel>
                                         <TextBlock Text="多摩川通信 CRC 错误" Classes="card-title"/>
-                                        <TextBlock Text="0" Classes="card-value" Foreground="{DynamicResource StatusOk}"/>
+                                        <TextBlock Text="{Binding TamagawaCrcErrorCountText}" Classes="card-value" Foreground="{DynamicResource StatusOk}"/>
                                         <TextBlock Text="累计丢失/错误包计数" Classes="card-sub"/>
                                     </StackPanel>
                                 </Border>
@@ -300,7 +300,7 @@
                                 <Border Grid.Row="1" Grid.Column="2" Classes="card">
                                     <StackPanel>
                                         <TextBlock Text="控制器循环状态" Classes="card-title"/>
-                                        <TextBlock Text="ACTIVE" Classes="card-value" Foreground="{DynamicResource StatusOk}"/>
+                                        <TextBlock Text="{Binding ControllerLoopStatus}" Classes="card-value" Foreground="{DynamicResource StatusOk}"/>
                                         <TextBlock Text="状态正常 · 遥测就绪" Classes="card-sub"/>
                                     </StackPanel>
                                 </Border>
@@ -459,12 +459,12 @@
 
                                             <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                                                 <TextBlock Text="单圈绝对位置绝对值 (17-bit)" Foreground="{DynamicResource TextSecondary}"/>
-                                                <TextBlock Grid.Column="1" Text="83,294 / 131,072" FontFamily="Consolas" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding TamagawaAbsolutePositionText}" FontFamily="Consolas" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
                                             </Grid>
 
                                             <Grid ColumnDefinitions="*,Auto" Margin="0,4">
                                                 <TextBlock Text="多圈计数 (Multi-turn)" Foreground="{DynamicResource TextSecondary}"/>
-                                                <TextBlock Grid.Column="1" Text="12 圈" FontFamily="Consolas" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding TamagawaMultiTurnText}" FontFamily="Consolas" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
                                             </Grid>
                                         </StackPanel>
                                     </Border>
@@ -551,22 +551,57 @@
                                     </Border>
                                 </StackPanel>
 
-                                <!-- Schema JSON node trees -->
-                                <StackPanel Grid.Column="1" Spacing="16" Margin="12,0,0,0">
-                                    <Border Classes="card">
-                                        <StackPanel Spacing="10">
-                                            <TextBlock Text="固件属性树 (Schema Tree)" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
-                                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
-                                            
-                                            <ScrollViewer Height="300" Background="{DynamicResource SidebarBackground}" Padding="10" CornerRadius="6">
-                                                <TextBlock Text="vbus_voltage: float (ReadOnly)&#x0a;axis0:&#x0a;  error: uint32&#x0a;  current_state: uint8&#x0a;  motor:&#x0a;    is_armed: bool&#x0a;    current_control:&#x0a;      iq_setpoint: float&#x0a;      iq_measured: float&#x0a;  encoder:&#x0a;    pos_estimate: float&#x0a;    vel_estimate: float&#x0a;  tamagawa:&#x0a;    absolute_position: uint32&#x0a;    multi_turn_count: int32&#x0a;    crc_error_count: uint32&#x0a;    warning_status: uint8&#x0a;    error_status: uint8&#x0a;    run_self_test: function -&gt; void"
-                                                           Foreground="{DynamicResource TextSecondary}"
-                                                           FontFamily="Consolas"
-                                                           FontSize="12"/>
-                                            </ScrollViewer>
-                                        </StackPanel>
+                                <!-- Parameter tree and read/write editor -->
+                                <Grid Grid.Column="1" RowDefinitions="*,Auto" Margin="12,0,0,0" RowSpacing="12">
+                                    <Border Grid.Row="0" Classes="card">
+                                        <Grid RowDefinitions="Auto,Auto,*" RowSpacing="10">
+                                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                                                <TextBlock Text="参数树 (Read / Write)" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                                <Button Grid.Column="1" Content="读取选中分支" Command="{Binding ReadAllParametersCommand}" Padding="10,4" FontSize="12"/>
+                                            </Grid>
+                                            <TextBlock Grid.Row="1" Text="{Binding ParameterStatus}" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap"/>
+
+                                            <TreeView Grid.Row="2"
+                                                      ItemsSource="{Binding ParameterTree}"
+                                                      SelectedItem="{Binding SelectedParameterNode, Mode=TwoWay}"
+                                                      Background="{DynamicResource SidebarBackground}"
+                                                      BorderBrush="{DynamicResource BorderBrush}"
+                                                      BorderThickness="1"
+                                                      MinHeight="320">
+                                                <TreeView.ItemTemplate>
+                                                    <TreeDataTemplate ItemsSource="{Binding Children}">
+                                                        <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                                                            <TextBlock Grid.Column="0" Text="{Binding Name}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas"/>
+                                                            <TextBlock Grid.Column="1" Text="{Binding CurrentValue}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" Margin="10,0,0,0"/>
+                                                        </Grid>
+                                                    </TreeDataTemplate>
+                                                </TreeView.ItemTemplate>
+                                            </TreeView>
+                                        </Grid>
                                     </Border>
-                                </StackPanel>
+
+                                    <Border Grid.Row="1" Classes="card">
+                                        <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="8">
+                                            <TextBlock Grid.Row="0" Text="参数详情" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                            <TextBlock Grid.Row="1" Text="{Binding SelectedParameterNode.Path}" Foreground="{DynamicResource TextSecondary}" FontFamily="Consolas" TextWrapping="Wrap"/>
+                                            <Grid Grid.Row="2" ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                                                <TextBlock Grid.Column="0" Text="{Binding SelectedParameterNode.ValueType}" Foreground="{DynamicResource TextMuted}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding SelectedParameterNode.Unit}" Foreground="{DynamicResource TextMuted}"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding SelectedParameterNode.Status}" Foreground="{DynamicResource StatusOk}" TextWrapping="Wrap"/>
+                                            </Grid>
+                                            <Grid Grid.Row="3" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                                                <TextBox Grid.Column="0"
+                                                         Text="{Binding SelectedParameterNode.PendingValue, Mode=TwoWay}"
+                                                         PlaceholderText="写入值"
+                                                         Background="{DynamicResource InputBackground}"
+                                                         BorderBrush="{DynamicResource BorderBrush}"/>
+                                                <Button Grid.Column="1" Content="读取" Command="{Binding ReadSelectedParameterCommand}" Padding="14,8"/>
+                                                <Button Grid.Column="2" Content="写入" Command="{Binding WriteSelectedParameterCommand}" Classes="primary" Padding="14,8"/>
+                                            </Grid>
+                                            <TextBlock Grid.Row="4" Text="只读参数会拒绝写入；写入成功后会自动回读。真实硬件写配置类参数前请确认电机安全状态。" Foreground="{DynamicResource TextMuted}" FontSize="11" TextWrapping="Wrap"/>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
                             </Grid>
                         </StackPanel>
                     </ScrollViewer>

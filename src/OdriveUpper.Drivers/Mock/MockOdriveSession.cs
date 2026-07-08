@@ -14,8 +14,18 @@ public sealed class MockOdriveSession(DeviceInfo info) : IDeviceSession
         ["axis0.encoder.pos_estimate"] = 0.0,
         ["axis0.encoder.vel_estimate"] = 0.0,
         ["axis0.tamagawa.encoder_id"] = 1,
+        ["axis0.tamagawa.absolute_position"] = 83294,
+        ["axis0.tamagawa.multi_turn_count"] = 12,
+        ["axis0.tamagawa.warning_status"] = 0,
+        ["axis0.tamagawa.error_status"] = 0,
         ["axis0.tamagawa.crc_error_count"] = 0,
         ["axis0.motor.current_control.iq_measured"] = 0.0,
+        ["axis0.controller.config.pos_gain"] = 20.0,
+        ["axis0.controller.config.vel_gain"] = 0.0005,
+        ["axis0.controller.config.vel_integrator_gain"] = 0.001,
+        ["axis0.controller.input_pos"] = 0.0,
+        ["axis0.controller.input_vel"] = 0.0,
+        ["axis0.controller.input_torque"] = 0.0,
         ["axis0.requested_state"] = "Idle"
     };
 
@@ -48,8 +58,18 @@ public sealed class MockOdriveSession(DeviceInfo info) : IDeviceSession
                 new ApiProperty("axis0.encoder.pos_estimate", "Axis 0 Position Estimate", "float", false, "turn"),
                 new ApiProperty("axis0.encoder.vel_estimate", "Axis 0 Velocity Estimate", "float", false, "turn/s"),
                 new ApiProperty("axis0.tamagawa.encoder_id", "Axis 0 Tamagawa Encoder ID", "int", true),
+                new ApiProperty("axis0.tamagawa.absolute_position", "Axis 0 Tamagawa Absolute Position", "uint32", false),
+                new ApiProperty("axis0.tamagawa.multi_turn_count", "Axis 0 Tamagawa Multi-turn Count", "int32", false),
+                new ApiProperty("axis0.tamagawa.warning_status", "Axis 0 Tamagawa Warning Status", "uint8", false),
+                new ApiProperty("axis0.tamagawa.error_status", "Axis 0 Tamagawa Error Status", "uint8", false),
                 new ApiProperty("axis0.tamagawa.crc_error_count", "Axis 0 Tamagawa CRC Errors", "int", false),
                 new ApiProperty("axis0.motor.current_control.iq_measured", "Axis 0 Iq Measured", "float", false, "A"),
+                new ApiProperty("axis0.controller.config.pos_gain", "Axis 0 Position Gain", "float", true),
+                new ApiProperty("axis0.controller.config.vel_gain", "Axis 0 Velocity Gain", "float", true),
+                new ApiProperty("axis0.controller.config.vel_integrator_gain", "Axis 0 Velocity Integrator Gain", "float", true),
+                new ApiProperty("axis0.controller.input_pos", "Axis 0 Input Position", "float", true, "turn"),
+                new ApiProperty("axis0.controller.input_vel", "Axis 0 Input Velocity", "float", true, "turn/s"),
+                new ApiProperty("axis0.controller.input_torque", "Axis 0 Input Torque", "float", true, "Nm"),
                 new ApiProperty("axis0.requested_state", "Axis 0 Requested State", "enum", true)
             ],
             Commands:
@@ -57,7 +77,10 @@ public sealed class MockOdriveSession(DeviceInfo info) : IDeviceSession
                 new ApiCommand("clear_errors", "Clear Errors", []),
                 new ApiCommand("save_configuration", "Save Configuration", []),
                 new ApiCommand("reboot", "Reboot", []),
-                new ApiCommand("axis0.tamagawa.run_self_test", "Run Tamagawa Self Test", [])
+                new ApiCommand("axis0.run_motor_calibration", "Run Axis 0 Motor Calibration", []),
+                new ApiCommand("axis0.tamagawa.run_self_test", "Run Tamagawa Self Test", []),
+                new ApiCommand("axis0.tamagawa.clear_alarm", "Clear Tamagawa Alarm", []),
+                new ApiCommand("axis0.tamagawa.calibrate_zero", "Calibrate Tamagawa Zero", [])
             ]);
 
         return Task.FromResult(schema);
@@ -109,11 +132,21 @@ public sealed class MockOdriveSession(DeviceInfo info) : IDeviceSession
             "clear_errors" => new CommandResult(true, "Errors cleared."),
             "save_configuration" => new CommandResult(true, "Configuration saved."),
             "reboot" => new CommandResult(true, "Mock reboot requested."),
+            "axis0.run_motor_calibration" => new CommandResult(true, "Axis 0 motor calibration completed."),
             "axis0.tamagawa.run_self_test" => new CommandResult(true, "Tamagawa self-test passed."),
+            "axis0.tamagawa.clear_alarm" => ClearTamagawaAlarm(),
+            "axis0.tamagawa.calibrate_zero" => new CommandResult(true, "Tamagawa zero calibration completed."),
             _ => new CommandResult(false, Error: $"Command '{path}' is not available on the mock device.")
         };
 
         return Task.FromResult(result);
+    }
+
+    private CommandResult ClearTamagawaAlarm()
+    {
+        _values["axis0.tamagawa.warning_status"] = 0;
+        _values["axis0.tamagawa.error_status"] = 0;
+        return new CommandResult(true, "Tamagawa alarm cleared.");
     }
 
     public async IAsyncEnumerable<TelemetryFrame> SubscribeTelemetryAsync(
@@ -135,6 +168,10 @@ public sealed class MockOdriveSession(DeviceInfo info) : IDeviceSession
             _values["axis0.motor.current_control.iq_measured"] = Math.Round(iq, 4);
             _values["vbus_voltage"] = Math.Round(24.0 + 0.2 * Math.Sin(elapsed.TotalSeconds * 0.2), 3);
             _values["axis0.tamagawa.crc_error_count"] = sample / 200;
+            _values["axis0.tamagawa.absolute_position"] = (83294 + sample * 17) % 131072;
+            _values["axis0.tamagawa.multi_turn_count"] = 12 + sample / 512;
+            _values["axis0.tamagawa.warning_status"] = sample % 997 == 0 && sample > 0 ? 1 : _values["axis0.tamagawa.warning_status"];
+            _values["axis0.tamagawa.error_status"] = 0;
 
             var values = subscription.Paths
                 .Where(_values.ContainsKey)
