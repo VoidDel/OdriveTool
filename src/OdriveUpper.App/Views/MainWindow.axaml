@@ -116,7 +116,16 @@
         </Style>
     </Window.Styles>
 
-    <Grid ColumnDefinitions="260,*" Background="Transparent">
+    <Grid Background="Transparent">
+        <!-- Dedicated drag surface for the extended client title area. Keep the right side clear for native window buttons. -->
+        <Border Height="44"
+                Margin="0,0,138,0"
+                VerticalAlignment="Top"
+                Background="Transparent"
+                ZIndex="100"
+                PointerPressed="Header_PointerPressed" />
+
+        <Grid ColumnDefinitions="260,*" Background="Transparent">
         <!-- LEFT SIDEBAR -->
         <Border Grid.Column="0" 
                 Background="{DynamicResource SidebarBackground}" 
@@ -609,5 +618,6 @@
             </Border>
         </Grid>
         </Border>
+        </Grid>
     </Grid>
 </Window>
