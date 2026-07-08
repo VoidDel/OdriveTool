@@ -8,4 +8,9 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
     }
+
+    private void Header_PointerPressed(object? sender, Avalonia.Input.PointerPressedEventArgs e)
+    {
+        BeginMoveDrag(e);
+    }
 }

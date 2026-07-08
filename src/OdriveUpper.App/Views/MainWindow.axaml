@@ -125,7 +125,7 @@
                 Padding="16,40,16,16">
             <Grid RowDefinitions="Auto,Auto,*,Auto">
                 <!-- App Logo & Title -->
-                <StackPanel Grid.Row="0" Margin="0,10,0,24" Spacing="8" Orientation="Horizontal" VerticalAlignment="Center">
+                <StackPanel Grid.Row="0" Margin="0,10,0,24" Spacing="8" Orientation="Horizontal" VerticalAlignment="Center" Background="Transparent" PointerPressed="Header_PointerPressed">
                     <Ellipse Width="12" Height="12" Fill="{DynamicResource AccentColor}" VerticalAlignment="Center"/>
                     <TextBlock Text="ODrive Control" 
                                Foreground="{DynamicResource TextPrimary}" 
@@ -219,7 +219,7 @@
         <Border Grid.Column="1" Background="{DynamicResource PrimaryBackground}" Padding="24,0,24,24">
             <Grid RowDefinitions="70,*">
             <!-- HEADER -->
-            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" VerticalAlignment="Bottom" Margin="0,0,0,10">
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" VerticalAlignment="Bottom" Margin="0,0,0,10" Background="Transparent" PointerPressed="Header_PointerPressed">
                 <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                     <TextBlock Text="{Binding SelectedTab}" 
                                Foreground="{DynamicResource TextPrimary}" 
