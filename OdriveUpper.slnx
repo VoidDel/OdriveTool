@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OdriveUpper.App/OdriveUpper.App.csproj" />
+    <Project Path="src/OdriveUpper.Core/OdriveUpper.Core.csproj" />
+    <Project Path="src/OdriveUpper.Drivers/OdriveUpper.Drivers.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OdriveUpper.Core.Tests/OdriveUpper.Core.Tests.csproj" />
+  </Folder>
+</Solution>

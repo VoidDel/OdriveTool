@@ -1,0 +1,131 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OdriveUpper.App.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="1200"
+        d:DesignHeight="760"
+        x:Class="OdriveUpper.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        x:CompileBindings="False"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="ODrive Custom Upper Computer">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <Grid RowDefinitions="Auto,*" Background="#0F1117">
+        <Border Grid.Row="0" Background="#171B24" BorderBrush="#2A3140" BorderThickness="0,0,0,1" Padding="18,14">
+            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                <StackPanel>
+                    <TextBlock Text="ODrive 自定义固件上位机"
+                               Foreground="#F5F7FA"
+                               FontSize="22"
+                               FontWeight="SemiBold" />
+                    <TextBlock Text="Avalonia / .NET 10 · 面向自定义固件、驱动抽象和多摩川编码器扩展"
+                               Foreground="#8D99AE"
+                               FontSize="13"
+                               Margin="0,4,0,0" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <Button Content="重新扫描" Command="{Binding RefreshDevicesCommand}" />
+                    <Button Content="连接设备" Command="{Binding ConnectSelectedDeviceCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" ColumnDefinitions="320,*">
+            <Border Grid.Column="0" Background="#151922" BorderBrush="#2A3140" BorderThickness="0,0,1,0" Padding="16">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <StackPanel Grid.Row="0" Spacing="6">
+                        <TextBlock Text="设备" Foreground="#F5F7FA" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="当前阶段使用 Mock 驱动验证上位机架构，后续接入真实自定义固件通信。"
+                                   Foreground="#8D99AE"
+                                   TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <ListBox Grid.Row="1"
+                             Margin="0,16,0,16"
+                             ItemsSource="{Binding Devices}"
+                             SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
+                             Background="#10141C"
+                             BorderBrush="#2A3140">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="10" Margin="0,3" CornerRadius="6" Background="#1E2430">
+                                    <StackPanel Spacing="4">
+                                        <TextBlock Text="{Binding DisplayName}" Foreground="#F5F7FA" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding SerialNumber}" Foreground="#9AA6B2" FontFamily="Consolas" FontSize="12" />
+                                        <TextBlock Text="{Binding FirmwareVersion}" Foreground="#7DD3FC" FontSize="12" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <StackPanel Grid.Row="2" Spacing="6">
+                        <TextBlock Text="连接状态" Foreground="#8D99AE" FontSize="12" />
+                        <TextBlock Text="{Binding ConnectionStatus}" Foreground="#7DD3FC" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <ScrollViewer Grid.Column="1" Padding="18">
+                <StackPanel Spacing="16">
+                    <Border Background="#171B24" BorderBrush="#2A3140" BorderThickness="1" CornerRadius="8" Padding="16">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="固件与 Schema" Foreground="#F5F7FA" FontSize="18" FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding FirmwareSource}" Foreground="#9AA6B2" FontFamily="Consolas" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding SchemaName}" Foreground="#7DD3FC" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                        <Border Grid.Column="0" Background="#171B24" BorderBrush="#2A3140" BorderThickness="1" CornerRadius="8" Padding="16">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="设备能力" Foreground="#F5F7FA" FontSize="18" FontWeight="SemiBold" />
+                                <ItemsControl ItemsSource="{Binding Capabilities}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" Foreground="#CBD5E1" Margin="0,2" TextWrapping="Wrap" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Column="1" Background="#171B24" BorderBrush="#2A3140" BorderThickness="1" CornerRadius="8" Padding="16">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="多摩川编码器" Foreground="#F5F7FA" FontSize="18" FontWeight="SemiBold" />
+                                <TextBlock Text="这里预留 axis0.tamagawa.* 自定义命名空间，后续可接真实固件的编码器 ID、CRC 错误、绝对位置、报警状态和自检命令。"
+                                           Foreground="#9AA6B2"
+                                           TextWrapping="Wrap" />
+                                <Button Content="运行多摩川自检" Command="{Binding RunTamagawaSelfTestCommand}" HorizontalAlignment="Left" />
+                                <TextBlock Text="{Binding LastCommandResult}" Foreground="#A7F3D0" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Border Background="#171B24" BorderBrush="#2A3140" BorderThickness="1" CornerRadius="8" Padding="16">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="实时遥测快照" Foreground="#F5F7FA" FontSize="18" FontWeight="SemiBold" />
+                            <ItemsControl ItemsSource="{Binding TelemetryValues}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnDefinitions="*,180" Margin="0,3">
+                                            <TextBlock Grid.Column="0" Text="{Binding Path}" Foreground="#CBD5E1" FontFamily="Consolas" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Value}" Foreground="#FBBF24" FontFamily="Consolas" HorizontalAlignment="Right" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>
