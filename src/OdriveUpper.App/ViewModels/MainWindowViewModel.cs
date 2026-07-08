@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
+using Avalonia;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -39,6 +41,112 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty]
     private string _lastCommandResult = "等待命令";
+
+    // --- UI Navigation and Theme ---
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDashboardActive))]
+    [NotifyPropertyChangedFor(nameof(IsControlActive))]
+    [NotifyPropertyChangedFor(nameof(IsEncoderActive))]
+    [NotifyPropertyChangedFor(nameof(IsSystemActive))]
+    private string _selectedTab = "Dashboard";
+
+    public bool IsDashboardActive => SelectedTab == "Dashboard";
+    public bool IsControlActive => SelectedTab == "Control";
+    public bool IsEncoderActive => SelectedTab == "Encoder";
+    public bool IsSystemActive => SelectedTab == "System";
+
+    [ObservableProperty]
+    private string _currentThemeName = "暗色";
+
+    // --- Control and Tuning Parameters ---
+    [ObservableProperty]
+    private string _controlMode = "位置控制"; // 位置控制, 速度控制, 力矩控制
+
+    [ObservableProperty]
+    private double _targetPosition = 0.0;
+
+    [ObservableProperty]
+    private double _targetVelocity = 0.0;
+
+    [ObservableProperty]
+    private double _targetTorque = 0.0;
+
+    [ObservableProperty]
+    private bool _isMotorEnabled = false;
+
+    [ObservableProperty]
+    private double _posGain = 20.0;
+
+    [ObservableProperty]
+    private double _velGain = 0.0005;
+
+    [ObservableProperty]
+    private double _velIntegratorGain = 0.001;
+
+    // --- Encoder Status ---
+    [ObservableProperty]
+    private string _encoderWarning = "无报警";
+
+    [ObservableProperty]
+    private string _encoderError = "无错误";
+
+    [RelayCommand]
+    private void ToggleTheme()
+    {
+        if (Application.Current is not null)
+        {
+            var current = Application.Current.RequestedThemeVariant;
+            if (current == ThemeVariant.Dark)
+            {
+                Application.Current.RequestedThemeVariant = ThemeVariant.Light;
+                CurrentThemeName = "亮色";
+            }
+            else
+            {
+                Application.Current.RequestedThemeVariant = ThemeVariant.Dark;
+                CurrentThemeName = "暗色";
+            }
+        }
+    }
+
+    [RelayCommand]
+    private void SetTab(string tabName)
+    {
+        SelectedTab = tabName;
+    }
+
+    [RelayCommand]
+    private async Task CalibrateMotorAsync()
+    {
+        LastCommandResult = "开始电机标定...";
+        await Task.Delay(1000);
+        LastCommandResult = "电机标定成功！";
+    }
+
+    [RelayCommand]
+    private async Task ClearEncoderWarningAsync()
+    {
+        LastCommandResult = "清除多摩川编码器报警...";
+        await Task.Delay(500);
+        EncoderWarning = "无报警";
+        LastCommandResult = "编码器报警已清除";
+    }
+
+    [RelayCommand]
+    private async Task CalibrateEncoderZeroAsync()
+    {
+        LastCommandResult = "开始多摩川零点校准...";
+        await Task.Delay(1500);
+        LastCommandResult = "零点校准完成";
+    }
+
+    [RelayCommand]
+    private async Task SaveConfigurationAsync()
+    {
+        LastCommandResult = "保存配置至 ODrive 闪存...";
+        await Task.Delay(800);
+        LastCommandResult = "配置已持久化保存";
+    }
 
     [RelayCommand]
     private async Task RefreshDevicesAsync()

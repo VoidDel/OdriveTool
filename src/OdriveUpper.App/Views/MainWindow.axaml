@@ -5,127 +5,563 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         d:DesignWidth="1200"
-        d:DesignHeight="760"
+        d:DesignHeight="780"
         x:Class="OdriveUpper.App.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         x:CompileBindings="False"
         Icon="/Assets/avalonia-logo.ico"
-        Title="ODrive Custom Upper Computer">
+        Title="ODrive Custom Upper Computer"
+        TransparencyLevelHint="Mica, AcrylicBlur, None"
+        Background="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="45"
+        MinWidth="960"
+        MinHeight="600">
 
-    <Design.DataContext>
-        <vm:MainWindowViewModel />
-    </Design.DataContext>
+    <Window.Styles>
+        <!-- Nav Button Style -->
+        <Style Selector="Button.nav">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="0,2"/>
+        </Style>
+        <Style Selector="Button.nav:pointerover">
+            <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+        </Style>
+        <Style Selector="Button.nav.active">
+            <Setter Property="Background" Value="{DynamicResource AccentColor}"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+        </Style>
+        <Style Selector="Button.nav.active TextBlock">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+        </Style>
 
-    <Grid RowDefinitions="Auto,*" Background="#0F1117">
-        <Border Grid.Row="0" Background="#171B24" BorderBrush="#2A3140" BorderThickness="0,0,0,1" Padding="18,14">
-            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-                <StackPanel>
-                    <TextBlock Text="ODrive 自定义固件上位机"
-                               Foreground="#F5F7FA"
-                               FontSize="22"
-                               FontWeight="SemiBold" />
-                    <TextBlock Text="Avalonia / .NET 10 · 面向自定义固件、驱动抽象和多摩川编码器扩展"
-                               Foreground="#8D99AE"
-                               FontSize="13"
-                               Margin="0,4,0,0" />
+        <!-- Accent Action Button -->
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="{DynamicResource AccentColor}"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style Selector="Button.primary:pointerover">
+            <Setter Property="Background" Value="{DynamicResource AccentHoverColor}"/>
+        </Style>
+
+        <!-- Danger Button -->
+        <Style Selector="Button.danger">
+            <Setter Property="Background" Value="{DynamicResource StatusError}"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <!-- Standard Card Style -->
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="6"/>
+        </Style>
+        
+        <!-- Typography -->
+        <Style Selector="TextBlock.card-title">
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+        </Style>
+        <Style Selector="TextBlock.card-value">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,6,0,2"/>
+        </Style>
+        <Style Selector="TextBlock.card-sub">
+            <Setter Property="Foreground" Value="{DynamicResource TextMuted}"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
+
+        <Style Selector="TextBlock.section-title">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="6,12,6,6"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid ColumnDefinitions="260,*" Background="Transparent">
+        <!-- LEFT SIDEBAR -->
+        <Border Grid.Column="0" 
+                Background="{DynamicResource SidebarBackground}" 
+                BorderBrush="{DynamicResource BorderBrush}" 
+                BorderThickness="0,0,1,0" 
+                Padding="16,40,16,16">
+            <Grid RowDefinitions="Auto,Auto,*,Auto">
+                <!-- App Logo & Title -->
+                <StackPanel Grid.Row="0" Margin="0,10,0,24" Spacing="8" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="12" Height="12" Fill="{DynamicResource AccentColor}" VerticalAlignment="Center"/>
+                    <TextBlock Text="ODrive Control" 
+                               Foreground="{DynamicResource TextPrimary}" 
+                               FontSize="18" 
+                               FontWeight="Bold" 
+                               VerticalAlignment="Center"/>
+                    <Border CornerRadius="4" Background="{DynamicResource ControlBackground}" Padding="4,2" Margin="4,0,0,0">
+                        <TextBlock Text="v2.0" FontSize="10" Foreground="{DynamicResource TextSecondary}" FontWeight="Bold"/>
+                    </Border>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                    <Button Content="重新扫描" Command="{Binding RefreshDevicesCommand}" />
-                    <Button Content="连接设备" Command="{Binding ConnectSelectedDeviceCommand}" />
+                <!-- Device Selector Section -->
+                <StackPanel Grid.Row="1" Margin="0,0,0,20" Spacing="8">
+                    <TextBlock Text="设备连接" Foreground="{DynamicResource TextSecondary}" FontSize="11" FontWeight="Bold" LetterSpacing="1"/>
+                    <ComboBox ItemsSource="{Binding Devices}"
+                              SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
+                              HorizontalAlignment="Stretch"
+                              PlaceholderText="选择设备..."
+                              Background="{DynamicResource InputBackground}"
+                              BorderBrush="{DynamicResource BorderBrush}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource TextPrimary}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,4,0,0">
+                        <Button Grid.Column="0" Content="重新扫描" Command="{Binding RefreshDevicesCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                        <Button Grid.Column="1" Content="连接设备" Command="{Binding ConnectSelectedDeviceCommand}" Classes="primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Navigation Menu -->
+                <StackPanel Grid.Row="2" Spacing="4">
+                    <TextBlock Text="导航菜单" Foreground="{DynamicResource TextSecondary}" FontSize="11" FontWeight="Bold" LetterSpacing="1" Margin="0,0,0,8"/>
+                    
+                    <Button Classes="nav" Classes.active="{Binding IsDashboardActive}" Command="{Binding SetTabCommand}" CommandParameter="Dashboard">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="📊" VerticalAlignment="Center"/>
+                            <TextBlock Text="实时遥测" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="nav" Classes.active="{Binding IsControlActive}" Command="{Binding SetTabCommand}" CommandParameter="Control">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="⚙️" VerticalAlignment="Center"/>
+                            <TextBlock Text="控制与调试" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="nav" Classes.active="{Binding IsEncoderActive}" Command="{Binding SetTabCommand}" CommandParameter="Encoder">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="🧩" VerticalAlignment="Center"/>
+                            <TextBlock Text="多摩川编码器" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="nav" Classes.active="{Binding IsSystemActive}" Command="{Binding SetTabCommand}" CommandParameter="System">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="📜" VerticalAlignment="Center"/>
+                            <TextBlock Text="固件与 Schema" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- Footer with Theme Toggle & Status -->
+                <StackPanel Grid.Row="3" Spacing="10" Margin="0,20,0,0">
+                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,10,0,0">
+                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                            <TextBlock Text="亮暗主题" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" FontSize="13"/>
+                            <Button Grid.Column="1" Command="{Binding ToggleThemeCommand}" Padding="8,4" CornerRadius="4">
+                                <StackPanel Orientation="Horizontal" Spacing="6">
+                                    <TextBlock Text="☀️" IsVisible="{Binding !IsDashboardActive}"/>
+                                    <!-- Use simple text toggle -->
+                                    <TextBlock Text="{Binding CurrentThemeName}" FontSize="12"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="状态监控" Foreground="{DynamicResource TextMuted}" FontSize="10" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding ConnectionStatus}" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap"/>
+                    </StackPanel>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <Grid Grid.Row="1" ColumnDefinitions="320,*">
-            <Border Grid.Column="0" Background="#151922" BorderBrush="#2A3140" BorderThickness="0,0,1,0" Padding="16">
-                <Grid RowDefinitions="Auto,*,Auto">
-                    <StackPanel Grid.Row="0" Spacing="6">
-                        <TextBlock Text="设备" Foreground="#F5F7FA" FontSize="18" FontWeight="SemiBold" />
-                        <TextBlock Text="当前阶段使用 Mock 驱动验证上位机架构，后续接入真实自定义固件通信。"
-                                   Foreground="#8D99AE"
-                                   TextWrapping="Wrap" />
-                    </StackPanel>
-
-                    <ListBox Grid.Row="1"
-                             Margin="0,16,0,16"
-                             ItemsSource="{Binding Devices}"
-                             SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
-                             Background="#10141C"
-                             BorderBrush="#2A3140">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Border Padding="10" Margin="0,3" CornerRadius="6" Background="#1E2430">
-                                    <StackPanel Spacing="4">
-                                        <TextBlock Text="{Binding DisplayName}" Foreground="#F5F7FA" FontWeight="SemiBold" />
-                                        <TextBlock Text="{Binding SerialNumber}" Foreground="#9AA6B2" FontFamily="Consolas" FontSize="12" />
-                                        <TextBlock Text="{Binding FirmwareVersion}" Foreground="#7DD3FC" FontSize="12" />
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-
-                    <StackPanel Grid.Row="2" Spacing="6">
-                        <TextBlock Text="连接状态" Foreground="#8D99AE" FontSize="12" />
-                        <TextBlock Text="{Binding ConnectionStatus}" Foreground="#7DD3FC" TextWrapping="Wrap" />
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <ScrollViewer Grid.Column="1" Padding="18">
-                <StackPanel Spacing="16">
-                    <Border Background="#171B24" BorderBrush="#2A3140" BorderThickness="1" CornerRadius="8" Padding="16">
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="固件与 Schema" Foreground="#F5F7FA" FontSize="18" FontWeight="SemiBold" />
-                            <TextBlock Text="{Binding FirmwareSource}" Foreground="#9AA6B2" FontFamily="Consolas" TextWrapping="Wrap" />
-                            <TextBlock Text="{Binding SchemaName}" Foreground="#7DD3FC" TextWrapping="Wrap" />
-                        </StackPanel>
-                    </Border>
-
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
-                        <Border Grid.Column="0" Background="#171B24" BorderBrush="#2A3140" BorderThickness="1" CornerRadius="8" Padding="16">
-                            <StackPanel Spacing="10">
-                                <TextBlock Text="设备能力" Foreground="#F5F7FA" FontSize="18" FontWeight="SemiBold" />
-                                <ItemsControl ItemsSource="{Binding Capabilities}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding}" Foreground="#CBD5E1" Margin="0,2" TextWrapping="Wrap" />
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Grid.Column="1" Background="#171B24" BorderBrush="#2A3140" BorderThickness="1" CornerRadius="8" Padding="16">
-                            <StackPanel Spacing="10">
-                                <TextBlock Text="多摩川编码器" Foreground="#F5F7FA" FontSize="18" FontWeight="SemiBold" />
-                                <TextBlock Text="这里预留 axis0.tamagawa.* 自定义命名空间，后续可接真实固件的编码器 ID、CRC 错误、绝对位置、报警状态和自检命令。"
-                                           Foreground="#9AA6B2"
-                                           TextWrapping="Wrap" />
-                                <Button Content="运行多摩川自检" Command="{Binding RunTamagawaSelfTestCommand}" HorizontalAlignment="Left" />
-                                <TextBlock Text="{Binding LastCommandResult}" Foreground="#A7F3D0" TextWrapping="Wrap" />
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-
-                    <Border Background="#171B24" BorderBrush="#2A3140" BorderThickness="1" CornerRadius="8" Padding="16">
-                        <StackPanel Spacing="10">
-                            <TextBlock Text="实时遥测快照" Foreground="#F5F7FA" FontSize="18" FontWeight="SemiBold" />
-                            <ItemsControl ItemsSource="{Binding TelemetryValues}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid ColumnDefinitions="*,180" Margin="0,3">
-                                            <TextBlock Grid.Column="0" Text="{Binding Path}" Foreground="#CBD5E1" FontFamily="Consolas" />
-                                            <TextBlock Grid.Column="1" Text="{Binding Value}" Foreground="#FBBF24" FontFamily="Consolas" HorizontalAlignment="Right" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+        <!-- RIGHT WORKSPACE AREA -->
+        <Border Grid.Column="1" Background="{DynamicResource PrimaryBackground}" Padding="24,0,24,24">
+            <Grid RowDefinitions="70,*">
+            <!-- HEADER -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" VerticalAlignment="Bottom" Margin="0,0,0,10">
+                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SelectedTab}" 
+                               Foreground="{DynamicResource TextPrimary}" 
+                               FontSize="22" 
+                               FontWeight="Bold"/>
+                    <Border CornerRadius="10" Background="{DynamicResource ControlBackground}" Padding="8,3" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource StatusOk}" VerticalAlignment="Center"/>
+                            <TextBlock Text="Mock 驱动在线" FontSize="11" Foreground="{DynamicResource TextSecondary}"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
-            </ScrollViewer>
+
+                <!-- Quick actions -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="0,0,100,0">
+                    <!-- Margin leaves space for window control buttons -->
+                    <Button Content="保存配置至闪存" Command="{Binding SaveConfigurationCommand}" FontSize="12" Height="32" Padding="12,0"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- MAIN PANELS -->
+            <Border Grid.Row="1" 
+                    Background="{DynamicResource PanelBackground}" 
+                    BorderBrush="{DynamicResource BorderBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="12" 
+                    Padding="16">
+                <Grid>
+                    <!-- ======================================= -->
+                    <!-- 1. DASHBOARD PANEL -->
+                    <!-- ======================================= -->
+                    <ScrollViewer IsVisible="{Binding IsDashboardActive}">
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="系统关键状态指标" Classes="section-title"/>
+                            
+                            <!-- Card Grid -->
+                            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
+                                <Border Grid.Row="0" Grid.Column="0" Classes="card">
+                                    <StackPanel>
+                                        <TextBlock Text="母线电压 (VBUS)" Classes="card-title"/>
+                                        <TextBlock Text="24.12 V" Classes="card-value"/>
+                                        <TextBlock Text="安全范围: 12.0 V - 56.0 V" Classes="card-sub"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Row="0" Grid.Column="1" Classes="card">
+                                    <StackPanel>
+                                        <TextBlock Text="直轴测定电流 (IQ)" Classes="card-title"/>
+                                        <TextBlock Text="1.25 A" Classes="card-value"/>
+                                        <TextBlock Text="测定力矩电流反馈" Classes="card-sub"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Row="0" Grid.Column="2" Classes="card">
+                                    <StackPanel>
+                                        <TextBlock Text="编码器位置估算" Classes="card-title"/>
+                                        <TextBlock Text="10.45 Turns" Classes="card-value"/>
+                                        <TextBlock Text="当前轴机械旋转圈数" Classes="card-sub"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Row="1" Grid.Column="0" Classes="card">
+                                    <StackPanel>
+                                        <TextBlock Text="编码器速度估算" Classes="card-title"/>
+                                        <TextBlock Text="120.4 RPM" Classes="card-value"/>
+                                        <TextBlock Text="当前转速 (圈/分钟)" Classes="card-sub"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Row="1" Grid.Column="1" Classes="card">
+                                    <StackPanel>
+                                        <TextBlock Text="多摩川通信 CRC 错误" Classes="card-title"/>
+                                        <TextBlock Text="0" Classes="card-value" Foreground="{DynamicResource StatusOk}"/>
+                                        <TextBlock Text="累计丢失/错误包计数" Classes="card-sub"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Row="1" Grid.Column="2" Classes="card">
+                                    <StackPanel>
+                                        <TextBlock Text="控制器循环状态" Classes="card-title"/>
+                                        <TextBlock Text="ACTIVE" Classes="card-value" Foreground="{DynamicResource StatusOk}"/>
+                                        <TextBlock Text="状态正常 · 遥测就绪" Classes="card-sub"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <TextBlock Text="全量参数快照 (实时更新)" Classes="section-title" Margin="6,18,6,6"/>
+                            <Border Classes="card">
+                                <StackPanel Spacing="4">
+                                    <Grid ColumnDefinitions="*,120" Margin="0,4" Opacity="0.5">
+                                        <TextBlock Grid.Column="0" Text="参数路径" FontStyle="Italic" FontSize="11" Foreground="{DynamicResource TextSecondary}"/>
+                                        <TextBlock Grid.Column="1" Text="当前反馈值" FontStyle="Italic" FontSize="11" Foreground="{DynamicResource TextSecondary}" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Margin="0,0,0,6"/>
+                                    
+                                    <ItemsControl ItemsSource="{Binding TelemetryValues}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid ColumnDefinitions="*,180" Margin="0,4">
+                                                    <TextBlock Grid.Column="0" Text="{Binding Path}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas" FontSize="13" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Value}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- ======================================= -->
+                    <!-- 2. CONTROL PANEL -->
+                    <!-- ======================================= -->
+                    <ScrollViewer IsVisible="{Binding IsControlActive}">
+                        <Grid ColumnDefinitions="*,*">
+                            <!-- Left: Target controls -->
+                            <StackPanel Grid.Column="0" Spacing="16" Margin="0,0,12,0">
+                                <TextBlock Text="控制轴状态与模式" Classes="section-title"/>
+                                <Border Classes="card">
+                                    <StackPanel Spacing="14">
+                                        <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                            <TextBlock Text="使能电机控制器 (Enable)" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsMotorEnabled}" OnContent="" OffContent="" VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="闭环控制模式 (Control Mode)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                            <ComboBox HorizontalAlignment="Stretch" SelectedItem="{Binding ControlMode, Mode=TwoWay}" Background="{DynamicResource InputBackground}">
+                                                <ComboBoxItem Content="位置控制"/>
+                                                <ComboBoxItem Content="速度控制"/>
+                                                <ComboBoxItem Content="力矩控制"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <TextBlock Text="给定目标输入" Classes="section-title"/>
+                                <Border Classes="card">
+                                    <StackPanel Spacing="16">
+                                        <!-- Position Input -->
+                                        <StackPanel Spacing="8" IsVisible="{Binding ControlMode, Converter={StaticResource x:Null}}">
+                                            <!-- Simple visible trick: standard way to display inputs conditionally -->
+                                        </StackPanel>
+                                        
+                                        <!-- We display all target sliders with description, representing values -->
+                                        <StackPanel Spacing="8">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Text="目标位置 Target Position (Turns)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding TargetPosition, StringFormat={}{0:F2}}" Foreground="{DynamicResource AccentColor}" FontWeight="Bold"/>
+                                            </Grid>
+                                            <Slider Minimum="-10" Maximum="10" Value="{Binding TargetPosition}" TickFrequency="0.1" IsSnapToTickEnabled="False"/>
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="8">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Text="目标速度 Target Velocity (RPM)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding TargetVelocity, StringFormat={}{0:F1}}" Foreground="{DynamicResource AccentColor}" FontWeight="Bold"/>
+                                            </Grid>
+                                            <Slider Minimum="-1000" Maximum="1000" Value="{Binding TargetVelocity}" TickFrequency="10" IsSnapToTickEnabled="False"/>
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="8">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Text="目标力矩 Target Torque (Nm)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding TargetTorque, StringFormat={}{0:F2}}" Foreground="{DynamicResource AccentColor}" FontWeight="Bold"/>
+                                            </Grid>
+                                            <Slider Minimum="-2.0" Maximum="2.0" Value="{Binding TargetTorque}" TickFrequency="0.05" IsSnapToTickEnabled="False"/>
+                                        </StackPanel>
+
+                                        <Button Content="紧急制动 (ESTOP)" Classes="danger" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Right: PID tuning -->
+                            <StackPanel Grid.Column="1" Spacing="16" Margin="12,0,0,0">
+                                <TextBlock Text="控制环参数配置 (PID Tuning)" Classes="section-title"/>
+                                <Border Classes="card">
+                                    <StackPanel Spacing="14">
+                                        <StackPanel Spacing="6">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Text="位置环比例增益 (pos_gain)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding PosGain}" Foreground="{DynamicResource TextPrimary}" FontWeight="Bold"/>
+                                            </Grid>
+                                            <NumericUpDown Value="{Binding PosGain}" Minimum="0" Maximum="100" Increment="1"/>
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="6">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Text="速度环比例增益 (vel_gain)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding VelGain, StringFormat={}{0:F6}}" Foreground="{DynamicResource TextPrimary}" FontWeight="Bold"/>
+                                            </Grid>
+                                            <NumericUpDown Value="{Binding VelGain}" Minimum="0" Maximum="0.1" Increment="0.0001" FormatString="0.######"/>
+                                        </StackPanel>
+
+                                        <StackPanel Spacing="6">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Text="速度积分增益 (vel_integrator_gain)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding VelIntegratorGain, StringFormat={}{0:F6}}" Foreground="{DynamicResource TextPrimary}" FontWeight="Bold"/>
+                                            </Grid>
+                                            <NumericUpDown Value="{Binding VelIntegratorGain}" Minimum="0" Maximum="0.1" Increment="0.0001" FormatString="0.######"/>
+                                        </StackPanel>
+
+                                        <Button Content="执行电机标定 (Calibrate)" Command="{Binding CalibrateMotorCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <TextBlock Text="最近执行命令反馈" Classes="section-title"/>
+                                <Border Classes="card" Height="100">
+                                    <ScrollViewer>
+                                        <TextBlock Text="{Binding LastCommandResult}" Foreground="{DynamicResource TextSecondary}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+
+                    <!-- ======================================= -->
+                    <!-- 3. ENCODER PANEL -->
+                    <!-- ======================================= -->
+                    <ScrollViewer IsVisible="{Binding IsEncoderActive}">
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="多摩川 (Tamagawa) 绝对值编码器信息" Classes="section-title"/>
+                            
+                            <Grid ColumnDefinitions="*,*">
+                                <!-- Left Column: Stats -->
+                                <StackPanel Grid.Column="0" Spacing="16" Margin="0,0,12,0">
+                                    <Border Classes="card">
+                                        <StackPanel Spacing="12">
+                                            <TextBlock Text="多摩川物理状态与故障字" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
+                                            
+                                            <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                                                <TextBlock Text="编码器报警状态 (Warning)" Foreground="{DynamicResource TextSecondary}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding EncoderWarning}" Foreground="{DynamicResource StatusWarning}" FontWeight="Bold"/>
+                                            </Grid>
+
+                                            <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                                                <TextBlock Text="编码器通信错误 (Error)" Foreground="{DynamicResource TextSecondary}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding EncoderError}" Foreground="{DynamicResource StatusOk}" FontWeight="Bold"/>
+                                            </Grid>
+
+                                            <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                                                <TextBlock Text="单圈绝对位置绝对值 (17-bit)" Foreground="{DynamicResource TextSecondary}"/>
+                                                <TextBlock Grid.Column="1" Text="83,294 / 131,072" FontFamily="Consolas" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
+                                            </Grid>
+
+                                            <Grid ColumnDefinitions="*,Auto" Margin="0,4">
+                                                <TextBlock Text="多圈计数 (Multi-turn)" Foreground="{DynamicResource TextSecondary}"/>
+                                                <TextBlock Grid.Column="1" Text="12 圈" FontFamily="Consolas" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Command Buttons -->
+                                    <Border Classes="card">
+                                        <StackPanel Spacing="10">
+                                            <TextBlock Text="编码器命令与调测" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
+                                            
+                                            <Button Content="多摩川运行自检命令" Command="{Binding RunTamagawaSelfTestCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                            <Button Content="清除编码器报警 (Clear Alarm)" Command="{Binding ClearEncoderWarningCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                            <Button Content="校准机械零点 (Calibrate Zero)" Command="{Binding CalibrateEncoderZeroCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Right Column: Technical Explanations -->
+                                <StackPanel Grid.Column="1" Spacing="16" Margin="12,0,0,0">
+                                    <Border Classes="card" Background="{DynamicResource SidebarBackground}">
+                                        <StackPanel Spacing="10">
+                                            <TextBlock Text="多摩川串行通信协议说明" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                            <TextBlock Text="多摩川 TS5667 / TS5700 系列编码器采用半双工串行通信规约，物理层基于 RS485，支持 2.5 Mbps 异步串行速率。" 
+                                                       Foreground="{DynamicResource TextSecondary}" 
+                                                       FontSize="12" 
+                                                       TextWrapping="Wrap"/>
+                                            <TextBlock Text="自定义固件预留命名空间：axis0.tamagawa.*，直接映射底层硬件驱动接收到的 10 字节数据包（包含绝对地址、多圈数据、CRC-8 校验和）。" 
+                                                       Foreground="{DynamicResource TextSecondary}" 
+                                                       FontSize="12" 
+                                                       TextWrapping="Wrap"/>
+                                            <TextBlock Text="注意：多圈数据在断电时依靠外部电池保存。如果更换电池或发生电池欠压报警，必须执行「清除编码器报警」和「校准机械零点」才能恢复正常运行。" 
+                                                       Foreground="{DynamicResource TextMuted}" 
+                                                       FontSize="12" 
+                                                       TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Classes="card" Height="100">
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="自检与诊断控制台" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                            <TextBlock Text="{Binding LastCommandResult}" Foreground="{DynamicResource StatusOk}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- ======================================= -->
+                    <!-- 4. SYSTEM PANEL -->
+                    <!-- ======================================= -->
+                    <ScrollViewer IsVisible="{Binding IsSystemActive}">
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="ODrive 自定义固件接口规范 (Schema)" Classes="section-title"/>
+                            
+                            <Grid ColumnDefinitions="*,*">
+                                <!-- Capabilities checklist -->
+                                <StackPanel Grid.Column="0" Spacing="16" Margin="0,0,12,0">
+                                    <Border Classes="card">
+                                        <StackPanel Spacing="12">
+                                            <TextBlock Text="当前驱动抽象特征 (Capabilities)" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
+
+                                            <ItemsControl ItemsSource="{Binding Capabilities}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid ColumnDefinitions="Auto,*" Margin="0,3">
+                                                            <TextBlock Grid.Column="0" Text="✓" Foreground="{DynamicResource StatusOk}" FontWeight="Bold" Margin="0,0,8,0"/>
+                                                            <TextBlock Grid.Column="1" Text="{Binding}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Classes="card">
+                                        <StackPanel Spacing="8">
+                                            <TextBlock Text="固件源代码位置" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding FirmwareSource}" Foreground="{DynamicResource TextSecondary}" FontFamily="Consolas" FontSize="11" TextWrapping="Wrap"/>
+                                            <TextBlock Text="API 规范模型" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                                            <TextBlock Text="{Binding SchemaName}" Foreground="{DynamicResource AccentColor}" FontSize="13" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- Schema JSON node trees -->
+                                <StackPanel Grid.Column="1" Spacing="16" Margin="12,0,0,0">
+                                    <Border Classes="card">
+                                        <StackPanel Spacing="10">
+                                            <TextBlock Text="固件属性树 (Schema Tree)" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
+                                            
+                                            <ScrollViewer Height="300" Background="{DynamicResource SidebarBackground}" Padding="10" CornerRadius="6">
+                                                <TextBlock Text="vbus_voltage: float (ReadOnly)&#x0a;axis0:&#x0a;  error: uint32&#x0a;  current_state: uint8&#x0a;  motor:&#x0a;    is_armed: bool&#x0a;    current_control:&#x0a;      iq_setpoint: float&#x0a;      iq_measured: float&#x0a;  encoder:&#x0a;    pos_estimate: float&#x0a;    vel_estimate: float&#x0a;  tamagawa:&#x0a;    absolute_position: uint32&#x0a;    multi_turn_count: int32&#x0a;    crc_error_count: uint32&#x0a;    warning_status: uint8&#x0a;    error_status: uint8&#x0a;    run_self_test: function -&gt; void"
+                                                           Foreground="{DynamicResource TextSecondary}"
+                                                           FontFamily="Consolas"
+                                                           FontSize="12"/>
+                                            </ScrollViewer>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
         </Grid>
+        </Border>
     </Grid>
 </Window>
