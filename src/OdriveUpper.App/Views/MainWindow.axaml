@@ -728,7 +728,7 @@
                                                             Margin="6,4">
                                                         <Grid RowDefinitions="Auto,*" Margin="2">
                                                             <!-- Selected Indicator -->
-                                                            <PathIcon Grid.Row="0" Width="10" Height="10" Data="M10.97 4.97a.75.75 0 0 0-1.071-1.05l-3.992 4.99a.75.75 0 0 0 .01 1.05l1.414 1.414a.75.75 0 0 0 1.06-1.06l-1.058-1.059L10.97 4.97z" Foreground="{DynamicResource AccentColor}" HorizontalAlignment="Right" VerticalAlignment="Top" IsVisible="{Binding IsSelected}"/>
+                                                            <PathIcon Grid.Row="0" Width="10" Height="10" Data="M 13.5 4.5 L 6.5 11.5 L 2.5 7.5 L 4 6 L 6.5 8.5 L 12 3 Z" Foreground="{DynamicResource AccentColor}" HorizontalAlignment="Right" VerticalAlignment="Top" IsVisible="{Binding IsSelected}"/>
                                                             
                                                             <!-- Text content -->
                                                             <StackPanel Grid.Row="1" Spacing="4" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4,4,4,0">
