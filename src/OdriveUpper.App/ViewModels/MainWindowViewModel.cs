@@ -45,6 +45,16 @@ public partial class MainWindowViewModel : ViewModelBase
     private string _parameterStatus = "连接设备后加载参数树";
 
     [ObservableProperty]
+    private string _parameterSearchText = string.Empty;
+
+    [ObservableProperty]
+    private bool _showWritableOnly;
+
+    partial void OnParameterSearchTextChanged(string value) => RebuildParameterTreeFromCurrentSchema();
+
+    partial void OnShowWritableOnlyChanged(bool value) => RebuildParameterTreeFromCurrentSchema();
+
+    [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(RefreshDevicesCommand))]
     [NotifyCanExecuteChangedFor(nameof(ConnectSelectedDeviceCommand))]
     private bool _isDeviceBusy;
@@ -432,12 +442,48 @@ public partial class MainWindowViewModel : ViewModelBase
         ParameterTree.Clear();
         SelectedParameterNode = null;
 
-        foreach (var property in schema.Properties.OrderBy(property => property.Path, StringComparer.OrdinalIgnoreCase))
+        var properties = FilterProperties(schema.Properties).ToArray();
+        foreach (var property in properties.OrderBy(property => property.Path, StringComparer.OrdinalIgnoreCase))
         {
             AddPropertyNode(property);
         }
 
-        ParameterStatus = $"已加载 {schema.Properties.Count} 个参数";
+        var filterText = string.IsNullOrWhiteSpace(ParameterSearchText) && !ShowWritableOnly
+            ? string.Empty
+            : $"，当前显示 {properties.Length} 个";
+        ParameterStatus = $"已加载 {schema.Properties.Count} 个参数{filterText}";
+    }
+
+    private void RebuildParameterTreeFromCurrentSchema()
+    {
+        if (_schema is null)
+        {
+            return;
+        }
+
+        BuildParameterTree(_schema);
+    }
+
+    private IEnumerable<ApiProperty> FilterProperties(IEnumerable<ApiProperty> properties)
+    {
+        var search = ParameterSearchText.Trim();
+        foreach (var property in properties)
+        {
+            if (ShowWritableOnly && !property.IsWritable)
+            {
+                continue;
+            }
+
+            if (!string.IsNullOrWhiteSpace(search) &&
+                !property.Path.Contains(search, StringComparison.OrdinalIgnoreCase) &&
+                !property.DisplayName.Contains(search, StringComparison.OrdinalIgnoreCase) &&
+                !(property.Description?.Contains(search, StringComparison.OrdinalIgnoreCase) == true))
+            {
+                continue;
+            }
+
+            yield return property;
+        }
     }
 
     private void AddPropertyNode(ApiProperty property)
