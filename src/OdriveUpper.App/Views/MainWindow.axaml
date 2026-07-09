@@ -111,8 +111,19 @@
         <Style Selector="Border#StepBorder.active TextBlock#StepNumberText">
             <Setter Property="Foreground" Value="{DynamicResource AccentColor}"/>
         </Style>
-        <Style Selector="Border#StepBorder.active PathIcon#StepCheckIcon">
+
+        <!-- Completed Step Styling -->
+        <Style Selector="Border#StepBorder.completed Border#StepNumberCircle">
+            <Setter Property="Background" Value="{DynamicResource StatusOk}"/>
+        </Style>
+        <Style Selector="Border#StepBorder.completed TextBlock#StepNumberText">
             <Setter Property="Foreground" Value="#FFFFFF"/>
+        </Style>
+        <Style Selector="Border#StepBorder.completed.active Border#StepNumberCircle">
+            <Setter Property="Background" Value="#FFFFFF"/>
+        </Style>
+        <Style Selector="Border#StepBorder.completed.active TextBlock#StepNumberText">
+            <Setter Property="Foreground" Value="{DynamicResource AccentColor}"/>
         </Style>
 
         <!-- Standard Card Style -->
@@ -614,13 +625,10 @@
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                     <!-- Step indicator -->
-                                                    <Border Name="StepBorder" Classes.active="{Binding IsActive}" Padding="8,4" CornerRadius="4" Background="Transparent" ToolTip.Tip="{Binding Title}">
+                                                    <Border Name="StepBorder" Classes.active="{Binding IsActive}" Classes.completed="{Binding IsCompleted}" Padding="8,4" CornerRadius="4" Background="Transparent" ToolTip.Tip="{Binding Title}">
                                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
                                                             <Border Name="StepNumberCircle" Width="18" Height="18" CornerRadius="9" Background="{DynamicResource ControlBackground}">
-                                                                <Panel>
-                                                                    <TextBlock Name="StepNumberText" Text="{Binding StepNumber}" IsVisible="{Binding !IsCompleted}" Foreground="{DynamicResource TextSecondary}" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                                    <PathIcon Name="StepCheckIcon" Data="M10.97 4.97a.75.75 0 0 0-1.071-1.05l-3.992 4.99a.75.75 0 0 0 .01 1.05l1.414 1.414a.75.75 0 0 0 1.06-1.06l-1.058-1.059L10.97 4.97z" Width="9" Height="9" Foreground="{DynamicResource StatusOk}" IsVisible="{Binding IsCompleted}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                                </Panel>
+                                                                <TextBlock Name="StepNumberText" Text="{Binding StepNumber}" Foreground="{DynamicResource TextSecondary}" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                             </Border>
                                                             <TextBlock Name="StepTitleText" Text="{Binding Title}" IsVisible="{Binding IsActive}" Foreground="{DynamicResource TextSecondary}" FontSize="12" VerticalAlignment="Center"/>
                                                         </StackPanel>
