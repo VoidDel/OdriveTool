@@ -114,34 +114,7 @@
             <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
         </Style>
 
-        <!-- Floating Navigation Buttons -->
-        <Style Selector="Button.float-nav">
-            <Setter Property="Opacity" Value="0.5"/>
-            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="ZIndex" Value="10"/>
-            <Setter Property="Transitions">
-                <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="0:0:0.15"/>
-                </Transitions>
-            </Setter>
-        </Style>
-        <Style Selector="Button.float-nav:pointerover">
-            <Setter Property="Opacity" Value="1.0"/>
-            <Setter Property="Background" Value="{DynamicResource SidebarBackground}"/>
-        </Style>
-        
-        <!-- For primary floating nav (Next button) -->
-        <Style Selector="Button.float-nav.primary">
-            <Setter Property="Background" Value="{DynamicResource AccentColor}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-        </Style>
-        <Style Selector="Button.float-nav.primary:pointerover">
-            <Setter Property="Background" Value="{DynamicResource AccentHoverColor}"/>
-            <Setter Property="Opacity" Value="1.0"/>
-        </Style>
+
 
         <!-- Breadcrumb Navigation Styles -->
         <!-- Breadcrumb Navigation Styles -->
@@ -723,10 +696,30 @@
                                 </ScrollViewer>
                             </Border>
 
-                            <!-- Wizard Content Panel with Left/Right Buttons -->
-                            <Grid VerticalAlignment="Center">
-                                <!-- Middle Column: Step Configuration Details (Takes Full Width) -->
-                                <StackPanel Spacing="16">
+                            <!-- Navigation Controls Bar (Between Navigation and Step) -->
+                            <Grid ColumnDefinitions="Auto,*,Auto" Height="48" Margin="6,0">
+                                <!-- Back Button -->
+                                <Button Grid.Column="0" Command="{Binding SetupWizard.BackCommand}" 
+                                        Width="40" Height="40" CornerRadius="20" Padding="0"
+                                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                        ToolTip.Tip="上一步">
+                                    <PathIcon Width="14" Height="14" Data="{Binding IconChevronLeft}"/>
+                                </Button>
+                                
+                                <!-- Status Text -->
+                                <TextBlock Grid.Column="1" Text="{Binding SetupWizard.StatusText}" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="13"/>
+                                
+                                <!-- Next Button -->
+                                <Button Grid.Column="2" Command="{Binding SetupWizard.NextCommand}" IsVisible="{Binding SetupWizard.IsNotReviewStep}" 
+                                        Classes="primary" Width="40" Height="40" CornerRadius="20" Padding="0"
+                                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                        ToolTip.Tip="下一步">
+                                    <PathIcon Width="14" Height="14" Data="{Binding IconChevronRight}"/>
+                                </Button>
+                            </Grid>
+
+                            <!-- Step Configuration Details -->
+                            <StackPanel Spacing="16">
                                     <!-- Configuration Step Card -->
                                     <Border Classes="card" IsVisible="{Binding SetupWizard.IsNotReviewStep}">
                                         <StackPanel Spacing="16">
@@ -833,18 +826,7 @@
                                         </StackPanel>
                                     </Border>
 
-                                    <!-- Status Text -->
-                                    <TextBlock Text="{Binding SetupWizard.StatusText}" Foreground="{DynamicResource TextSecondary}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,8,0,0"/>
                                 </StackPanel>
-
-                                <!-- Right Column: Circle Next Button -->
-                                <Button Grid.Column="2" Command="{Binding SetupWizard.NextCommand}" IsVisible="{Binding SetupWizard.IsNotReviewStep}" 
-                                        Classes="primary" Width="44" Height="44" CornerRadius="22" Padding="0"
-                                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                                        VerticalAlignment="Center" ToolTip.Tip="下一步">
-                                    <PathIcon Width="16" Height="16" Data="{Binding IconChevronRight}"/>
-                                </Button>
-                            </Grid>
                         </StackPanel>
                     </ScrollViewer>
 
