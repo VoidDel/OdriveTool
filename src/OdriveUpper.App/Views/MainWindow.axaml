@@ -95,18 +95,47 @@
         </Style>
 
         <!-- Breadcrumb Navigation Styles -->
+        <!-- Breadcrumb Navigation Styles -->
         <Style Selector="ItemsControl.breadcrumb > ContentPresenter:last-child TextBlock#StepSeparator">
             <Setter Property="IsVisible" Value="False"/>
         </Style>
+
+        <!-- StepBorder Default -->
+        <Style Selector="Border#StepBorder">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
         <Style Selector="Border#StepBorder.active">
             <Setter Property="Background" Value="{DynamicResource AccentColor}"/>
+        </Style>
+
+        <!-- StepTitleText Default -->
+        <Style Selector="TextBlock#StepTitleText">
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
         </Style>
         <Style Selector="Border#StepBorder.active TextBlock#StepTitleText">
             <Setter Property="Foreground" Value="#FFFFFF"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
+
+        <!-- StepNumberCircle Default -->
+        <Style Selector="Border#StepNumberCircle">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Width" Value="18"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="CornerRadius" Value="9"/>
+        </Style>
         <Style Selector="Border#StepBorder.active Border#StepNumberCircle">
             <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <!-- StepNumberText Default -->
+        <Style Selector="TextBlock#StepNumberText">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimary}"/>
         </Style>
         <Style Selector="Border#StepBorder.active TextBlock#StepNumberText">
             <Setter Property="Foreground" Value="{DynamicResource AccentColor}"/>
@@ -114,13 +143,16 @@
 
         <!-- Completed Step Styling -->
         <Style Selector="Border#StepBorder.completed Border#StepNumberCircle">
-            <Setter Property="Background" Value="{DynamicResource StatusOk}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource StatusOk}"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Background" Value="Transparent"/>
         </Style>
         <Style Selector="Border#StepBorder.completed TextBlock#StepNumberText">
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Foreground" Value="{DynamicResource StatusOk}"/>
         </Style>
         <Style Selector="Border#StepBorder.completed.active Border#StepNumberCircle">
             <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="BorderThickness" Value="0"/>
         </Style>
         <Style Selector="Border#StepBorder.completed.active TextBlock#StepNumberText">
             <Setter Property="Foreground" Value="{DynamicResource AccentColor}"/>
@@ -625,16 +657,16 @@
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                                     <!-- Step indicator -->
-                                                    <Border Name="StepBorder" Classes.active="{Binding IsActive}" Classes.completed="{Binding IsCompleted}" Padding="8,4" CornerRadius="4" Background="Transparent" ToolTip.Tip="{Binding Title}">
+                                                    <Border Name="StepBorder" Classes.active="{Binding IsActive}" Classes.completed="{Binding IsCompleted}" ToolTip.Tip="{Binding Title}">
                                                         <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                                            <Border Name="StepNumberCircle" Width="18" Height="18" CornerRadius="9" Background="{DynamicResource ControlBackground}">
-                                                                <TextBlock Name="StepNumberText" Text="{Binding StepNumber}" Foreground="{DynamicResource TextSecondary}" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            <Border Name="StepNumberCircle">
+                                                                <TextBlock Name="StepNumberText" Text="{Binding StepNumber}" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                             </Border>
-                                                            <TextBlock Name="StepTitleText" Text="{Binding Title}" IsVisible="{Binding IsActive}" Foreground="{DynamicResource TextSecondary}" FontSize="12" VerticalAlignment="Center"/>
+                                                            <TextBlock Name="StepTitleText" Text="{Binding Title}" IsVisible="{Binding IsActive}" FontSize="12" VerticalAlignment="Center"/>
                                                         </StackPanel>
                                                     </Border>
                                                     <!-- Separator -->
-                                                    <TextBlock Name="StepSeparator" Text="›" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center" Margin="6,0" FontSize="14" FontWeight="Bold"/>
+                                                    <TextBlock Name="StepSeparator" Text="›" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" Margin="6,0" FontSize="14" FontWeight="Bold"/>
                                                 </StackPanel>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
