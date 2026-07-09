@@ -94,6 +94,26 @@
             <Setter Property="Opacity" Value="0.85"/>
         </Style>
 
+        <!-- Choice Buttons (Horizontal Card Style) -->
+        <Style Selector="Button.choice">
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12,16"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+        </Style>
+        <Style Selector="Button.choice:pointerover">
+            <Setter Property="Background" Value="{DynamicResource SidebarBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
+        </Style>
+        <Style Selector="Button.choice.active">
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentColor}"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
+        </Style>
+
         <!-- Breadcrumb Navigation Styles -->
         <!-- Breadcrumb Navigation Styles -->
         <Style Selector="ItemsControl.breadcrumb > ContentPresenter:last-child TextBlock#StepSeparator">
@@ -695,18 +715,26 @@
                                         </StackPanel>
 
                                         <ItemsControl ItemsSource="{Binding SetupWizard.CurrentStep.Choices}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <UniformGrid Rows="1" Margin="-6,0"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Button Classes="choice" Classes.active="{Binding IsSelected}"
                                                             Command="{Binding DataContext.SetupWizard.SelectChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}"
-                                                            Margin="0,0,0,8">
-                                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                                            <StackPanel Grid.Column="0" Spacing="4">
-                                                                <TextBlock Text="{Binding Title}" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
-                                                                <TextBlock Text="{Binding Description}" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap"/>
+                                                            Margin="6,4">
+                                                        <Grid RowDefinitions="Auto,*" Margin="2">
+                                                            <!-- Selected Indicator -->
+                                                            <PathIcon Grid.Row="0" Width="10" Height="10" Data="M10.97 4.97a.75.75 0 0 0-1.071-1.05l-3.992 4.99a.75.75 0 0 0 .01 1.05l1.414 1.414a.75.75 0 0 0 1.06-1.06l-1.058-1.059L10.97 4.97z" Foreground="{DynamicResource AccentColor}" HorizontalAlignment="Right" VerticalAlignment="Top" IsVisible="{Binding IsSelected}"/>
+                                                            
+                                                            <!-- Text content -->
+                                                            <StackPanel Grid.Row="1" Spacing="4" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4,4,4,0">
+                                                                <TextBlock Text="{Binding Title}" Foreground="{DynamicResource TextPrimary}" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                                                                <TextBlock Text="{Binding Description}" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center"/>
                                                             </StackPanel>
-                                                            <TextBlock Grid.Column="1" Text="已选择" IsVisible="{Binding IsSelected}" Foreground="{DynamicResource AccentColor}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                                         </Grid>
                                                     </Button>
                                                 </DataTemplate>
