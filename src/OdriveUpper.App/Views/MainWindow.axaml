@@ -119,8 +119,7 @@
 
 
         <!-- Breadcrumb Navigation Styles -->
-        <!-- Breadcrumb Navigation Styles -->
-        <Style Selector="ItemsControl.breadcrumb > ContentPresenter:last-child TextBlock#StepSeparator">
+        <Style Selector="ItemsControl.breadcrumb ContentPresenter:last-child TextBlock#StepSeparator">
             <Setter Property="IsVisible" Value="False"/>
         </Style>
 
