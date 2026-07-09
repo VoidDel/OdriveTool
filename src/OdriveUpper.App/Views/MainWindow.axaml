@@ -307,22 +307,23 @@
 
                 <!-- Footer with Theme Toggle & Status -->
                 <StackPanel Grid.Row="3" Spacing="10" Margin="0,20,0,0">
-                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,10,0,0">
+                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,12,0,0">
                         <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
-                            <TextBlock Text="亮暗主题" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" FontSize="13"/>
-                            <Button Grid.Column="1" Command="{Binding ToggleThemeCommand}" Padding="8,4" CornerRadius="4">
-                                <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <PathIcon Data="{Binding CurrentThemeIcon}" Width="12" Height="12" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding CurrentThemeName}" FontSize="12" VerticalAlignment="Center"/>
-                                </StackPanel>
+                            <!-- Left: Status monitoring -->
+                            <StackPanel Grid.Column="0" Spacing="2">
+                                <TextBlock Text="状态监控" Foreground="{DynamicResource TextMuted}" FontSize="10" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding ConnectionStatus}" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <!-- Right: Clean Theme Toggle Button (Icon-Only) -->
+                            <Button Grid.Column="1" Command="{Binding ToggleThemeCommand}" 
+                                    Width="32" Height="32" CornerRadius="16" Padding="0"
+                                    HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                    ToolTip.Tip="切换主题">
+                                <PathIcon Data="{Binding CurrentThemeIcon}" Width="14" Height="14"/>
                             </Button>
                         </Grid>
                     </Border>
-
-                    <StackPanel Spacing="2">
-                        <TextBlock Text="状态监控" Foreground="{DynamicResource TextMuted}" FontSize="10" FontWeight="Bold"/>
-                        <TextBlock Text="{Binding ConnectionStatus}" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap"/>
-                    </StackPanel>
                 </StackPanel>
             </Grid>
         </Border>
