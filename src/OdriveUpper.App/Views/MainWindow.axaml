@@ -238,8 +238,8 @@
                                FontSize="18" 
                                FontWeight="Bold" 
                                VerticalAlignment="Center"/>
-                    <Border CornerRadius="4" Background="{DynamicResource ControlBackground}" Padding="4,2" Margin="4,0,0,0">
-                        <TextBlock Text="v2.0" FontSize="10" Foreground="{DynamicResource TextSecondary}" FontWeight="Bold"/>
+                    <Border CornerRadius="4" Background="{DynamicResource ControlBackground}" Padding="4,2" Margin="4,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="v2.0" FontSize="10" Foreground="{DynamicResource TextSecondary}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                 </StackPanel>
 
