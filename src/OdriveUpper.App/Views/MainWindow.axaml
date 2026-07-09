@@ -697,13 +697,13 @@
                             </Border>
 
                             <!-- Navigation Controls Bar (Between Navigation and Step) -->
-                            <Grid ColumnDefinitions="Auto,*,Auto" Height="48" Margin="6,0">
+                            <Grid ColumnDefinitions="Auto,*,Auto" Height="40" Margin="6,0">
                                 <!-- Back Button -->
                                 <Button Grid.Column="0" Command="{Binding SetupWizard.BackCommand}" 
-                                        Width="40" Height="40" CornerRadius="20" Padding="0"
+                                        Width="46" Height="30" CornerRadius="6" Padding="0"
                                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                                         ToolTip.Tip="上一步">
-                                    <PathIcon Width="14" Height="14" Data="{Binding IconChevronLeft}"/>
+                                    <PathIcon Width="12" Height="12" Data="{Binding IconChevronLeft}"/>
                                 </Button>
                                 
                                 <!-- Status Text -->
@@ -711,10 +711,10 @@
                                 
                                 <!-- Next Button -->
                                 <Button Grid.Column="2" Command="{Binding SetupWizard.NextCommand}" IsVisible="{Binding SetupWizard.IsNotReviewStep}" 
-                                        Classes="primary" Width="40" Height="40" CornerRadius="20" Padding="0"
+                                        Classes="primary" Width="46" Height="30" CornerRadius="6" Padding="0"
                                         HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                                         ToolTip.Tip="下一步">
-                                    <PathIcon Width="14" Height="14" Data="{Binding IconChevronRight}"/>
+                                    <PathIcon Width="12" Height="12" Data="{Binding IconChevronRight}"/>
                                 </Button>
                             </Grid>
 
