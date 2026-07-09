@@ -2,8 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="OdriveUpper.App.App"
              xmlns:local="using:OdriveUpper.App"
-             RequestedThemeVariant="Dark">
-             <!-- Default to Dark Theme, toggleable to Light -->
+             RequestedThemeVariant="Default">
+             <!-- Default to system theme, toggleable to Light/Dark -->
 
     <Application.DataTemplates>
         <local:ViewLocator/>

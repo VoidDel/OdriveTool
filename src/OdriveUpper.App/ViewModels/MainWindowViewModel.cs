@@ -14,6 +14,22 @@ namespace OdriveUpper.App.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
+    private const int AxisStateIdle = 1;
+    private const int AxisStateMotorCalibration = 4;
+    private const int AxisStateClosedLoopControl = 8;
+    private const int ControlModeTorque = 1;
+    private const int ControlModeVelocity = 2;
+    private const int ControlModePosition = 3;
+
+    private const string IconCircleHalf = "M 8 15 A 7 7 0 1 0 8 1 Z M 8 16 A 8 8 0 1 1 8 0 A 8 8 0 0 1 8 16 Z";
+    private const string IconSun = "M 8 12 a 4 4 0 1 0 0 -8 a 4 4 0 0 0 0 8 M 8 0 a 0.5 0.5 0 0 1 0.5 0.5 v 2 a 0.5 0.5 0 0 1 -1 0 v -2 A 0.5 0.5 0 0 1 8 0 M 8 13 a 0.5 0.5 0 0 1 0.5 0.5 v 2 a 0.5 0.5 0 0 1 -1 0 v -2 A 0.5 0.5 0 0 1 8 13 M 16 8 a 0.5 0.5 0 0 1 -0.5 0.5 h -2 a 0.5 0.5 0 0 1 0 -1 h 2 a 0.5 0.5 0 0 1 0.5 0.5 M 3 8 a 0.5 0.5 0 0 1 -0.5 0.5 h -2 a 0.5 0.5 0 0 1 0 -1 h 2 A 0.5 0.5 0 0 1 3 8 M 13.657 2.343 a 0.5 0.5 0 0 1 0 0.707 l -1.414 1.415 a 0.5 0.5 0 1 1 -0.707 -0.708 l 1.414 -1.414 a 0.5 0.5 0 0 1 0.707 0 M 4.464 11.536 a 0.5 0.5 0 0 1 0 0.707 l -1.414 1.414 a 0.5 0.5 0 0 1 -0.707 -0.707 l 1.414 -1.414 a 0.5 0.5 0 0 1 0.707 0 M 13.657 13.657 a 0.5 0.5 0 0 1 -0.707 0 l -1.414 -1.414 a 0.5 0.5 0 0 1 0.707 -0.707 l 1.414 1.414 a 0.5 0.5 0 0 1 0 0.707 M 4.464 4.465 a 0.5 0.5 0 0 1 -0.707 0 l -1.414 -1.414 a 0.5 0.5 0 1 1 0.707 -0.707 l 1.414 1.414 a 0.5 0.5 0 0 1 0 0.708";
+    private const string IconMoon = "M 6 0.278 a 0.768 0.768 0 0 1 0.08 0.858 a 7.208 7.208 0 0 0 -0.878 3.46 c 0 4.021 3.278 7.277 7.318 7.277 c 0.527 0 1.04 -0.055 1.533 -0.16 a 0.787 0.787 0 0 1 0.81 0.316 a 0.733 0.733 0 0 1 -0.031 0.893 A 8.349 8.349 0 0 1 8.344 16 C 3.734 16 0 12.286 0 7.71 C 0 4.266 2.114 1.312 5.124 0.06 A 0.752 0.752 0 0 1 6 0.278 z";
+
+    private const string IconDashboardPath = "M 6 2 a 0.5 0.5 0 0 1 0.47 0.33 L 10 12.036 l 1.53 -4.208 A 0.5 0.5 0 0 1 12 7.5 h 3.5 a 0.5 0.5 0 0 1 0 1 h -3.15 l -1.88 5.17 a 0.5 0.5 0 0 1 -0.94 0 L 6 3.964 L 4.47 8.171 A 0.5 0.5 0 0 1 4 8.5 H 0.5 a 0.5 0.5 0 0 1 0 -1 h 3.15 l 1.88 -5.17 A 0.5 0.5 0 0 1 6 2";
+    private const string IconControlPath = "M 10.5 1 a 0.5 0.5 0 0 1 0.5 0.5 v 4 a 0.5 0.5 0 0 1 -1 0 V 4 H 1.5 a 0.5 0.5 0 0 1 0 -1 H 10 V 1.5 a 0.5 0.5 0 0 1 0.5 -0.5 M 12 3.5 a 0.5 0.5 0 0 1 0.5 -0.5 h 2 a 0.5 0.5 0 0 1 0 1 h -2 a 0.5 0.5 0 0 1 -0.5 -0.5 m -6.5 2 A 0.5 0.5 0 0 1 6 6 v 1.5 h 8.5 a 0.5 0.5 0 0 1 0 1 H 6 V 10 a 0.5 0.5 0 0 1 -1 0 V 6 a 0.5 0.5 0 0 1 0.5 -0.5 M 1 8 a 0.5 0.5 0 0 1 0.5 -0.5 h 2 a 0.5 0.5 0 0 1 0 1 h -2 A 0.5 0.5 0 0 1 1 8 m 9.5 2 a 0.5 0.5 0 0 1 0.5 0.5 v 4 a 0.5 0.5 0 0 1 -1 0 V 13 H 1.5 a 0.5 0.5 0 0 1 0 -1 H 10 v -1.5 a 0.5 0.5 0 0 1 0.5 -0.5 m 1.5 2.5 a 0.5 0.5 0 0 1 0.5 -0.5 h 2 a 0.5 0.5 0 0 1 0 1 h -2 a 0.5 0.5 0 0 1 -0.5 -0.5";
+    private const string IconEncoderPath = "M 8 15 A 7 7 0 1 0 8 1 Z M 8 16 A 8 8 0 1 1 8 0 A 8 8 0 0 1 8 16 Z M 8 10 A 2 2 0 1 0 8 6 A 2 2 0 0 0 8 10 Z M 8 11 A 3 3 0 1 1 8 5 A 3 3 0 0 1 8 11 Z";
+    private const string IconSystemPath = "M 14 2 H 6 c -1.1 0 -1.99 0.9 -1.99 2 L 4 20 c 0 1.1 0.89 2 1.99 2 H 18 c 1.1 0 2 -0.9 2 -2 V 8 l -6 -6 z M 16 18 H 8 v -2 h 8 v 2 z M 16 14 H 8 v -2 h 8 v 2 z M 13 9 V 3.5 L 18.5 9 H 13 z";
+
     private readonly IReadOnlyList<IDeviceDriver> _drivers =
     [
         new SerialAsciiOdriveDriver()
@@ -31,6 +47,10 @@ public partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<DeviceListItemViewModel> Devices { get; } = [];
 
     public ObservableCollection<string> Capabilities { get; } = [];
+
+    public ObservableCollection<int> AvailableAxes { get; } = [0, 1];
+
+    public ObservableCollection<string> AvailableControlModes { get; } = ["位置控制", "速度控制", "力矩控制"];
 
     public ObservableCollection<TelemetryValueViewModel> TelemetryValues { get; } = [];
 
@@ -75,6 +95,24 @@ public partial class MainWindowViewModel : ViewModelBase
     private string _lastCommandResult = "等待命令";
 
     [ObservableProperty]
+    private int _selectedAxis = 0;
+
+    [ObservableProperty]
+    private string _axisStateText = "—";
+
+    [ObservableProperty]
+    private string _axisErrorText = "—";
+
+    [ObservableProperty]
+    private string _motorErrorText = "—";
+
+    [ObservableProperty]
+    private string _encoderErrorText = "—";
+
+    [ObservableProperty]
+    private string _controllerErrorText = "—";
+
+    [ObservableProperty]
     private string _vbusVoltageText = "—";
 
     [ObservableProperty]
@@ -111,8 +149,16 @@ public partial class MainWindowViewModel : ViewModelBase
     public bool IsEncoderActive => SelectedTab == "Encoder";
     public bool IsSystemActive => SelectedTab == "System";
 
+    public string IconDashboard => IconDashboardPath;
+    public string IconControl => IconControlPath;
+    public string IconEncoder => IconEncoderPath;
+    public string IconSystem => IconSystemPath;
+
     [ObservableProperty]
-    private string _currentThemeName = "暗色";
+    private string _currentThemeName = "跟随系统";
+
+    [ObservableProperty]
+    private string _currentThemeIcon = IconCircleHalf;
 
     // --- Control and Tuning Parameters ---
     [ObservableProperty]
@@ -153,17 +199,35 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string _encoderError = "无错误";
 
+    partial void OnSelectedAxisChanged(int value)
+    {
+        _ = RefreshSelectedAxisStatusAsync();
+    }
+
     partial void OnIsMotorEnabledChanged(bool value)
     {
-        _ = WriteSingleAsync("axis0.requested_state", value ? "ClosedLoopControl" : "Idle");
+        _ = WriteSingleAsync(AxisPath("requested_state"), value ? AxisStateClosedLoopControl : AxisStateIdle);
         ControllerLoopStatus = value ? "ACTIVE" : "IDLE";
+    }
+
+    partial void OnControlModeChanged(string value)
+    {
+        var mode = value switch
+        {
+            "位置控制" => ControlModePosition,
+            "速度控制" => ControlModeVelocity,
+            "力矩控制" => ControlModeTorque,
+            _ => ControlModePosition
+        };
+
+        _ = WriteSingleAsync(AxisPath("controller.config.control_mode"), mode);
     }
 
     partial void OnTargetPositionChanged(double value)
     {
         if (IsPositionMode)
         {
-            _ = WriteSingleAsync("axis0.controller.input_pos", value);
+            _ = WriteSingleAsync(AxisPath("controller.input_pos"), value);
         }
     }
 
@@ -171,7 +235,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (IsVelocityMode)
         {
-            _ = WriteSingleAsync("axis0.controller.input_vel", value);
+            _ = WriteSingleAsync(AxisPath("controller.input_vel"), value / 60.0);
         }
     }
 
@@ -179,15 +243,15 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (IsTorqueMode)
         {
-            _ = WriteSingleAsync("axis0.controller.input_torque", value);
+            _ = WriteSingleAsync(AxisPath("controller.input_torque"), value);
         }
     }
 
-    partial void OnPosGainChanged(double value) => _ = WriteSingleAsync("axis0.controller.config.pos_gain", value);
+    partial void OnPosGainChanged(double value) => _ = WriteSingleAsync(AxisPath("controller.config.pos_gain"), value);
 
-    partial void OnVelGainChanged(double value) => _ = WriteSingleAsync("axis0.controller.config.vel_gain", value);
+    partial void OnVelGainChanged(double value) => _ = WriteSingleAsync(AxisPath("controller.config.vel_gain"), value);
 
-    partial void OnVelIntegratorGainChanged(double value) => _ = WriteSingleAsync("axis0.controller.config.vel_integrator_gain", value);
+    partial void OnVelIntegratorGainChanged(double value) => _ = WriteSingleAsync(AxisPath("controller.config.vel_integrator_gain"), value);
 
     [RelayCommand]
     private void ToggleTheme()
@@ -195,15 +259,23 @@ public partial class MainWindowViewModel : ViewModelBase
         if (Application.Current is not null)
         {
             var current = Application.Current.RequestedThemeVariant;
-            if (current == ThemeVariant.Dark)
+            if (current == ThemeVariant.Default)
             {
                 Application.Current.RequestedThemeVariant = ThemeVariant.Light;
                 CurrentThemeName = "亮色";
+                CurrentThemeIcon = IconSun;
             }
-            else
+            else if (current == ThemeVariant.Light)
             {
                 Application.Current.RequestedThemeVariant = ThemeVariant.Dark;
                 CurrentThemeName = "暗色";
+                CurrentThemeIcon = IconMoon;
+            }
+            else
+            {
+                Application.Current.RequestedThemeVariant = ThemeVariant.Default;
+                CurrentThemeName = "跟随系统";
+                CurrentThemeIcon = IconCircleHalf;
             }
         }
     }
@@ -217,7 +289,33 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task CalibrateMotorAsync()
     {
-        await InvokeCommandAsync("axis0.run_motor_calibration", "执行电机标定");
+        await WriteAxisStateAsync(AxisStateMotorCalibration, "执行电机标定");
+    }
+
+    [RelayCommand]
+    private async Task DisableMotorAsync()
+    {
+        IsMotorEnabled = false;
+        await WriteAxisStateAsync(AxisStateIdle, "切换到 Idle");
+    }
+
+    [RelayCommand]
+    private async Task EmergencyStopAsync()
+    {
+        IsMotorEnabled = false;
+        var writes = AvailableAxes
+            .Select(axis => new PropertyWrite($"axis{axis}.requested_state", AxisStateIdle))
+            .ToArray();
+        await WriteManyAsync(writes, "紧急制动：所有轴切换到 Idle");
+    }
+
+    [RelayCommand]
+    private async Task ClearErrorsAsync()
+    {
+        if (await InvokeCommandAsync("clear_errors", "清除设备错误"))
+        {
+            await RefreshSelectedAxisStatusAsync();
+        }
     }
 
     [RelayCommand]
@@ -240,6 +338,10 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task SaveConfigurationAsync()
     {
+        var writes = AvailableAxes
+            .Select(axis => new PropertyWrite($"axis{axis}.requested_state", AxisStateIdle))
+            .ToArray();
+        await WriteManyAsync(writes, "保存前切换所有轴到 Idle");
         await InvokeCommandAsync("save_configuration", "保存配置至 ODrive 闪存");
     }
     [RelayCommand(CanExecute = nameof(CanRunDeviceOperation))]
@@ -570,19 +672,27 @@ public partial class MainWindowViewModel : ViewModelBase
     private void StartTelemetry(IDeviceSession session)
     {
         _telemetryCts = new CancellationTokenSource();
-        var subscription = new TelemetrySubscription(
-            [
-                "vbus_voltage",
-                "axis0.encoder.pos_estimate",
-                "axis0.encoder.vel_estimate",
-                "axis0.motor.current_control.iq_measured",
-                "axis0.tamagawa.crc_error_count",
-                "axis0.tamagawa.absolute_position",
-                "axis0.tamagawa.multi_turn_count",
-                "axis0.tamagawa.warning_status",
-                "axis0.tamagawa.error_status"
-            ],
-            TimeSpan.FromMilliseconds(250));
+        var telemetryPaths = new List<string> { "vbus_voltage" };
+        foreach (var axis in AvailableAxes)
+        {
+            telemetryPaths.AddRange([
+                $"axis{axis}.current_state",
+                $"axis{axis}.error",
+                $"axis{axis}.motor.error",
+                $"axis{axis}.encoder.error",
+                $"axis{axis}.controller.error",
+                $"axis{axis}.encoder.pos_estimate",
+                $"axis{axis}.encoder.vel_estimate",
+                $"axis{axis}.motor.current_control.iq_measured",
+                $"axis{axis}.tamagawa.crc_error_count",
+                $"axis{axis}.tamagawa.absolute_position",
+                $"axis{axis}.tamagawa.multi_turn_count",
+                $"axis{axis}.tamagawa.warning_status",
+                $"axis{axis}.tamagawa.error_status"
+            ]);
+        }
+
+        var subscription = new TelemetrySubscription(telemetryPaths, TimeSpan.FromMilliseconds(250));
 
         _ = Task.Run(async () =>
         {
@@ -621,36 +731,69 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void UpdateTelemetrySummary(string path, object? value)
     {
-        switch (path)
+        if (path == "vbus_voltage")
         {
-            case "vbus_voltage":
-                VbusVoltageText = $"{ToDouble(value):0.00} V";
+            VbusVoltageText = $"{ToDouble(value):0.00} V";
+            return;
+        }
+
+        var selectedAxisPrefix = $"axis{SelectedAxis}.";
+        if (!path.StartsWith(selectedAxisPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var suffix = path[selectedAxisPrefix.Length..];
+        switch (suffix)
+        {
+            case "current_state":
+                AxisStateText = FormatAxisState(GetLong(value));
+                ControllerLoopStatus = AxisStateText;
                 break;
-            case "axis0.motor.current_control.iq_measured":
+            case "error":
+                AxisErrorText = FormatErrorWord(GetLong(value));
+                break;
+            case "motor.error":
+                MotorErrorText = FormatErrorWord(GetLong(value));
+                break;
+            case "encoder.error":
+                EncoderErrorText = FormatErrorWord(GetLong(value));
+                break;
+            case "controller.error":
+                ControllerErrorText = FormatErrorWord(GetLong(value));
+                break;
+            case "motor.current_control.iq_measured":
                 IqMeasuredText = $"{ToDouble(value):0.00} A";
                 break;
-            case "axis0.encoder.pos_estimate":
+            case "encoder.pos_estimate":
                 EncoderPositionText = $"{ToDouble(value):0.000} Turns";
                 break;
-            case "axis0.encoder.vel_estimate":
+            case "encoder.vel_estimate":
                 EncoderVelocityRpmText = $"{ToDouble(value) * 60.0:0.0} RPM";
                 break;
-            case "axis0.tamagawa.crc_error_count":
+            case "tamagawa.crc_error_count":
                 TamagawaCrcErrorCountText = FormatTelemetryValue(value);
                 break;
-            case "axis0.tamagawa.absolute_position":
-                TamagawaAbsolutePositionText = $"{Convert.ToInt64(value):N0} / 131,072";
+            case "tamagawa.absolute_position":
+                TamagawaAbsolutePositionText = $"{GetLong(value):N0} / 131,072";
                 break;
-            case "axis0.tamagawa.multi_turn_count":
-                TamagawaMultiTurnText = $"{Convert.ToInt64(value)} 圈";
+            case "tamagawa.multi_turn_count":
+                TamagawaMultiTurnText = $"{GetLong(value)} 圈";
                 break;
-            case "axis0.tamagawa.warning_status":
-                EncoderWarning = Convert.ToInt64(value) == 0 ? "无报警" : $"报警字 0x{Convert.ToInt64(value):X2}";
+            case "tamagawa.warning_status":
+                EncoderWarning = GetLong(value) == 0 ? "无报警" : $"报警字 0x{GetLong(value):X2}";
                 break;
-            case "axis0.tamagawa.error_status":
-                EncoderError = Convert.ToInt64(value) == 0 ? "无错误" : $"错误字 0x{Convert.ToInt64(value):X2}";
+            case "tamagawa.error_status":
+                EncoderError = GetLong(value) == 0 ? "无错误" : $"错误字 0x{GetLong(value):X2}";
                 break;
         }
+    }
+
+    private string AxisPath(string suffix) => $"axis{SelectedAxis}.{suffix}";
+
+    private async Task WriteAxisStateAsync(int state, string displayName)
+    {
+        await WriteManyAsync([new PropertyWrite(AxisPath("requested_state"), state)], displayName);
     }
 
     private async Task WriteSingleAsync(string path, object? value)
@@ -660,12 +803,58 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        var results = await _session.WriteAsync([new PropertyWrite(path, value)], CancellationToken.None);
-        var result = results.FirstOrDefault();
-        if (result is { Success: false })
+        await WriteManyAsync([new PropertyWrite(path, value)], $"写入 {path}", reportSuccess: false);
+    }
+
+    private async Task WriteManyAsync(IReadOnlyList<PropertyWrite> writes, string displayName, bool reportSuccess = true)
+    {
+        if (_session is null)
         {
-            LastCommandResult = $"写入失败 {path}: {result.Error}";
+            LastCommandResult = "设备未连接";
+            return;
         }
+
+        if (reportSuccess)
+        {
+            LastCommandResult = $"{displayName}...";
+        }
+
+        var results = await _session.WriteAsync(writes, CancellationToken.None);
+        var failed = results.FirstOrDefault(result => !result.Success);
+        if (failed is not null)
+        {
+            LastCommandResult = $"{displayName}失败：{failed.Path} {failed.Error}";
+            return;
+        }
+
+        if (reportSuccess)
+        {
+            LastCommandResult = $"{displayName}完成";
+        }
+    }
+
+    private async Task RefreshSelectedAxisStatusAsync()
+    {
+        if (_session is null)
+        {
+            return;
+        }
+
+        var paths = new[]
+        {
+            AxisPath("current_state"),
+            AxisPath("error"),
+            AxisPath("motor.error"),
+            AxisPath("encoder.error"),
+            AxisPath("controller.error")
+        };
+
+        var result = await _session.ReadAsync(paths, CancellationToken.None);
+        AxisStateText = FormatAxisState(GetLong(result.Values, paths[0]));
+        AxisErrorText = FormatErrorWord(GetLong(result.Values, paths[1]));
+        MotorErrorText = FormatErrorWord(GetLong(result.Values, paths[2]));
+        EncoderErrorText = FormatErrorWord(GetLong(result.Values, paths[3]));
+        ControllerErrorText = FormatErrorWord(GetLong(result.Values, paths[4]));
     }
 
     private async Task<bool> InvokeCommandAsync(string path, string displayName)
@@ -699,8 +888,46 @@ public partial class MainWindowViewModel : ViewModelBase
         int i => i,
         long l => l,
         decimal m => (double)m,
+        string s when double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var d) => d,
         _ => 0.0
     };
+
+    private static long GetLong(IReadOnlyDictionary<string, object?> values, string path) =>
+        values.TryGetValue(path, out var value) ? GetLong(value) : 0;
+
+    private static long GetLong(object? value) => value switch
+    {
+        long l => l,
+        int i => i,
+        short s => s,
+        byte b => b,
+        double d => Convert.ToInt64(d),
+        float f => Convert.ToInt64(f),
+        decimal m => Convert.ToInt64(m),
+        string s when long.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var l) => l,
+        string s when double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out var d) => Convert.ToInt64(d),
+        _ => 0
+    };
+
+    private static string FormatAxisState(long state) => state switch
+    {
+        1 => "IDLE",
+        2 => "STARTUP_SEQUENCE",
+        3 => "FULL_CALIBRATION_SEQUENCE",
+        4 => "MOTOR_CALIBRATION",
+        5 => "SENSORLESS_CONTROL",
+        6 => "ENCODER_INDEX_SEARCH",
+        7 => "ENCODER_OFFSET_CALIBRATION",
+        8 => "CLOSED_LOOP_CONTROL",
+        10 => "ENCODER_DIR_FIND",
+        11 => "HOMING",
+        12 => "ENCODER_HALL_POLARITY_CALIBRATION",
+        13 => "ENCODER_HALL_PHASE_CALIBRATION",
+        14 => "ANTICOGGING_CALIBRATION",
+        _ => state == 0 ? "UNDEFINED" : $"STATE {state}"
+    };
+
+    private static string FormatErrorWord(long error) => error == 0 ? "none" : $"0x{error:X}";
 
     private static string ToYesNo(bool value) => value ? "支持" : "不支持";
 }

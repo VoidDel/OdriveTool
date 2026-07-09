@@ -1,4 +1,4 @@
-﻿namespace OdriveUpper.Core.Tests;
+namespace OdriveUpper.Core.Tests;
 
 public class UnitTest1
 {
