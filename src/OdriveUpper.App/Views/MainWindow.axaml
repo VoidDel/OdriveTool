@@ -778,10 +778,10 @@
                                                 </StackPanel>
                                             </Border>
 
-                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding SetupWizard.CurrentStep.HasCalibration}">
-                                                <Button Grid.Column="0" Content="请求电机标定" Command="{Binding SetupWizard.CalibrateMotorCommand}" IsVisible="{Binding SetupWizard.CurrentStep.HasMotorCalibration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                                                <Button Grid.Column="1" Content="请求编码器标定" Command="{Binding SetupWizard.CalibrateEncoderCommand}" IsVisible="{Binding SetupWizard.CurrentStep.HasEncoderCalibration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                                            </Grid>
+                                            <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center" IsVisible="{Binding SetupWizard.CurrentStep.HasCalibration}">
+                                                <Button Content="请求电机标定" Command="{Binding SetupWizard.CalibrateMotorCommand}" IsVisible="{Binding SetupWizard.CurrentStep.HasMotorCalibration}" Padding="20,10" HorizontalContentAlignment="Center"/>
+                                                <Button Content="请求编码器标定" Command="{Binding SetupWizard.CalibrateEncoderCommand}" IsVisible="{Binding SetupWizard.CurrentStep.HasEncoderCalibration}" Padding="20,10" HorizontalContentAlignment="Center"/>
+                                            </StackPanel>
 
                                             <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" IsVisible="{Binding SetupWizard.CurrentStep.HasCalibration}">
                                                 <TextBlock Text="标定会让电机转动。执行前请固定电机与负载、确认电源与限流设置，并保证急停可用。" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="12"/>
