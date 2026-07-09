@@ -94,6 +94,27 @@
             <Setter Property="Opacity" Value="0.85"/>
         </Style>
 
+        <!-- Breadcrumb Navigation Styles -->
+        <Style Selector="ItemsControl.breadcrumb > ContentPresenter:last-child TextBlock#StepSeparator">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+        <Style Selector="Border#StepBorder.active">
+            <Setter Property="Background" Value="{DynamicResource AccentColor}"/>
+        </Style>
+        <Style Selector="Border#StepBorder.active TextBlock#StepTitleText">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style Selector="Border#StepBorder.active Border#StepNumberCircle">
+            <Setter Property="Background" Value="#FFFFFF"/>
+        </Style>
+        <Style Selector="Border#StepBorder.active TextBlock#StepNumberText">
+            <Setter Property="Foreground" Value="{DynamicResource AccentColor}"/>
+        </Style>
+        <Style Selector="Border#StepBorder.active PathIcon#StepCheckIcon">
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+        </Style>
+
         <!-- Standard Card Style -->
         <Style Selector="Border.card">
             <Setter Property="Background" Value="{DynamicResource CardBackground}"/>
@@ -210,6 +231,13 @@
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <PathIcon Data="{Binding IconSystem}" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="固件与 Schema" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="nav" Classes.active="{Binding IsGuideActive}" Command="{Binding SetTabCommand}" CommandParameter="Guide">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <PathIcon Data="{Binding IconGuide}" Width="14" Height="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="设置指引" VerticalAlignment="Center" FontWeight="Medium"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>
@@ -567,7 +595,172 @@
                     </ScrollViewer>
 
                     <!-- ======================================= -->
-                    <!-- 4. SYSTEM PANEL -->
+                    <!-- 4. SETUP GUIDE PANEL -->
+                    <!-- ======================================= -->
+                    <ScrollViewer IsVisible="{Binding IsGuideActive}">
+                        <StackPanel Spacing="16">
+                            <TextBlock Text="ODrive 引导配置向导" Classes="section-title"/>
+
+                            <!-- Breadcrumb Steps Navigation -->
+                            <Border Classes="card" Padding="16,12">
+                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                    <ItemsControl Classes="breadcrumb" ItemsSource="{Binding SetupWizard.Steps}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <!-- Step indicator -->
+                                                    <Border Name="StepBorder" Classes.active="{Binding IsActive}" Padding="8,4" CornerRadius="4" Background="Transparent" ToolTip.Tip="{Binding Title}">
+                                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                                            <Border Name="StepNumberCircle" Width="18" Height="18" CornerRadius="9" Background="{DynamicResource ControlBackground}">
+                                                                <Panel>
+                                                                    <TextBlock Name="StepNumberText" Text="{Binding StepNumber}" IsVisible="{Binding !IsCompleted}" Foreground="{DynamicResource TextSecondary}" FontSize="10" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    <PathIcon Name="StepCheckIcon" Data="M10.97 4.97a.75.75 0 0 0-1.071-1.05l-3.992 4.99a.75.75 0 0 0 .01 1.05l1.414 1.414a.75.75 0 0 0 1.06-1.06l-1.058-1.059L10.97 4.97z" Width="9" Height="9" Foreground="{DynamicResource StatusOk}" IsVisible="{Binding IsCompleted}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Panel>
+                                                            </Border>
+                                                            <TextBlock Name="StepTitleText" Text="{Binding Title}" IsVisible="{Binding IsActive}" Foreground="{DynamicResource TextSecondary}" FontSize="12" VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <!-- Separator -->
+                                                    <TextBlock Name="StepSeparator" Text="›" Foreground="{DynamicResource TextMuted}" VerticalAlignment="Center" Margin="6,0" FontSize="14" FontWeight="Bold"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Border>
+
+                            <!-- Wizard Content Grid -->
+                            <Grid ColumnDefinitions="*,320" ColumnSpacing="16">
+                                <!-- Left Column: Active Step Details, Choices & Inputs -->
+                                <StackPanel Grid.Column="0" Spacing="16">
+                                    <!-- Configuration Step Card -->
+                                    <Border Classes="card" IsVisible="{Binding SetupWizard.IsNotReviewStep}">
+                                        <StackPanel Spacing="16">
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="{Binding SetupWizard.CurrentStep.Title}" Foreground="{DynamicResource TextPrimary}" FontSize="20" FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding SetupWizard.CurrentStep.Description}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="13"/>
+                                            </StackPanel>
+
+                                            <ItemsControl ItemsSource="{Binding SetupWizard.CurrentStep.Choices}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Button Classes="choice" Classes.active="{Binding IsSelected}"
+                                                                Command="{Binding DataContext.SetupWizard.SelectChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                CommandParameter="{Binding}"
+                                                                Margin="0,0,0,8">
+                                                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                                                <StackPanel Grid.Column="0" Spacing="4">
+                                                                    <TextBlock Text="{Binding Title}" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                                                    <TextBlock Text="{Binding Description}" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap"/>
+                                                                </StackPanel>
+                                                                <TextBlock Grid.Column="1" Text="已选择" IsVisible="{Binding IsSelected}" Foreground="{DynamicResource AccentColor}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                            </Grid>
+                                                        </Button>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                                                <StackPanel Spacing="10">
+                                                    <TextBlock Text="本步骤输入" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                                    <ItemsControl ItemsSource="{Binding SetupWizard.CurrentStep.Inputs}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Grid ColumnDefinitions="220,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="4" Margin="0,0,0,10">
+                                                                    <StackPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Spacing="2">
+                                                                        <TextBlock Text="{Binding Label}" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold" FontSize="12"/>
+                                                                        <TextBlock Text="{Binding Description}" Foreground="{DynamicResource TextMuted}" FontSize="11" TextWrapping="Wrap"/>
+                                                                    </StackPanel>
+                                                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Value, Mode=TwoWay}" Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource BorderBrush}"/>
+                                                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path}" Foreground="{DynamicResource TextMuted}" FontFamily="Consolas" FontSize="11"/>
+                                                                </Grid>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                    <TextBlock Text="没有额外输入项时，直接选择上方选项并进入下一步。" Foreground="{DynamicResource TextMuted}" FontSize="11" TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                                <Button Grid.Column="0" Content="请求电机标定" Command="{Binding SetupWizard.CalibrateMotorCommand}" IsVisible="{Binding SetupWizard.CurrentStep.HasMotorCalibration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                                <Button Grid.Column="1" Content="请求编码器标定" Command="{Binding SetupWizard.CalibrateEncoderCommand}" IsVisible="{Binding SetupWizard.CurrentStep.HasEncoderCalibration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                            </Grid>
+
+                                            <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                                                <TextBlock Text="标定会让电机转动。执行前请固定电机与负载、确认电源与限流设置，并保证急停可用。" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="12"/>
+                                            </Border>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Review Step Card -->
+                                    <Border Classes="card" IsVisible="{Binding SetupWizard.IsReviewStep}">
+                                        <StackPanel Spacing="14">
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="复核并写入" Foreground="{DynamicResource TextPrimary}" FontSize="20" FontWeight="SemiBold"/>
+                                                <TextBlock Text="向导会读取当前值并展示将写入的新值。Apply 只写入当前运行配置，断电保留需点击保存配置至闪存。" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="13"/>
+                                            </StackPanel>
+
+                                            <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+                                                <Grid RowDefinitions="Auto,*" RowSpacing="8">
+                                                    <Grid Grid.Row="0" ColumnDefinitions="2*,*,*,140" ColumnSpacing="12">
+                                                        <TextBlock Text="参数路径" Foreground="{DynamicResource TextMuted}" FontWeight="SemiBold" FontSize="12"/>
+                                                        <TextBlock Grid.Column="1" Text="当前值" Foreground="{DynamicResource TextMuted}" FontWeight="SemiBold" FontSize="12"/>
+                                                        <TextBlock Grid.Column="2" Text="新值" Foreground="{DynamicResource TextMuted}" FontWeight="SemiBold" FontSize="12"/>
+                                                        <TextBlock Grid.Column="3" Text="状态" Foreground="{DynamicResource TextMuted}" FontWeight="SemiBold" FontSize="12"/>
+                                                    </Grid>
+                                                    <ItemsControl Grid.Row="1" ItemsSource="{Binding SetupWizard.DraftEntries}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Grid ColumnDefinitions="2*,*,*,140" ColumnSpacing="12" Margin="0,4">
+                                                                    <TextBlock Text="{Binding Path}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" TextWrapping="Wrap" FontSize="12"/>
+                                                                    <TextBlock Grid.Column="1" Text="{Binding CurrentValue}" Foreground="{DynamicResource TextSecondary}" FontFamily="Consolas" TextWrapping="Wrap" FontSize="12"/>
+                                                                    <TextBlock Grid.Column="2" Text="{Binding NewValueText}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas" FontWeight="SemiBold" TextWrapping="Wrap" FontSize="12"/>
+                                                                    <TextBlock Grid.Column="3" Text="{Binding Status}" Foreground="{DynamicResource StatusWarning}" TextWrapping="Wrap" FontSize="12"/>
+                                                                </Grid>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </Grid>
+                                            </Border>
+
+                                            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                                                <Button Grid.Column="0" Content="重新读取当前值" Command="{Binding SetupWizard.RefreshCurrentValuesCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                                <Button Grid.Column="1" Content="Apply 写入设备" Command="{Binding SetupWizard.ApplyDraftCommand}" Classes="primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                                <Button Grid.Column="2" Content="保存配置至闪存" Command="{Binding SetupWizard.SaveConfigurationCommand}" Classes="warning" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Navigation Actions -->
+                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                        <Button Grid.Column="0" Content="上一步" Command="{Binding SetupWizard.BackCommand}" Padding="18,10"/>
+                                        <TextBlock Grid.Column="1" Text="" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                        <Button Grid.Column="2" Content="{Binding SetupWizard.NextButtonText}" Command="{Binding SetupWizard.NextCommand}" IsVisible="{Binding SetupWizard.IsNotReviewStep}" Classes="primary" Padding="18,10"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <!-- Right Column: Status Summary -->
+                                <StackPanel Grid.Column="1" Spacing="16">
+                                    <Border Classes="card" VerticalAlignment="Top">
+                                        <StackPanel Spacing="10">
+                                            <TextBlock Text="向导状态" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
+                                            <TextBlock Text="{Binding SetupWizard.ProgressText}" Foreground="{DynamicResource AccentColor}" FontWeight="SemiBold" FontSize="13"/>
+                                            <TextBlock Text="{Binding SetupWizard.StatusText}" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <!-- ======================================= -->
+                    <!-- 5. SYSTEM PANEL -->
                     <!-- ======================================= -->
                     <ScrollViewer IsVisible="{Binding IsSystemActive}">
                         <StackPanel Spacing="16">
