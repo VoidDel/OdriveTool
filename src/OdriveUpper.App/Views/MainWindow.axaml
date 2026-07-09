@@ -674,128 +674,113 @@
                                 </ScrollViewer>
                             </Border>
 
-                            <!-- Wizard Content Grid -->
-                            <Grid ColumnDefinitions="*,320" ColumnSpacing="16">
-                                <!-- Left Column: Active Step Details, Choices & Inputs -->
-                                <StackPanel Grid.Column="0" Spacing="16">
-                                    <!-- Configuration Step Card -->
-                                    <Border Classes="card" IsVisible="{Binding SetupWizard.IsNotReviewStep}">
-                                        <StackPanel Spacing="16">
-                                            <StackPanel Spacing="6">
-                                                <TextBlock Text="{Binding SetupWizard.CurrentStep.Title}" Foreground="{DynamicResource TextPrimary}" FontSize="20" FontWeight="SemiBold"/>
-                                                <TextBlock Text="{Binding SetupWizard.CurrentStep.Description}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="13"/>
-                                            </StackPanel>
+                            <!-- Wizard Content Panel -->
+                            <StackPanel Spacing="16">
+                                <!-- Configuration Step Card -->
+                                <Border Classes="card" IsVisible="{Binding SetupWizard.IsNotReviewStep}">
+                                    <StackPanel Spacing="16">
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="{Binding SetupWizard.CurrentStep.Title}" Foreground="{DynamicResource TextPrimary}" FontSize="20" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding SetupWizard.CurrentStep.Description}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="13"/>
+                                        </StackPanel>
 
-                                            <ItemsControl ItemsSource="{Binding SetupWizard.CurrentStep.Choices}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Button Classes="choice" Classes.active="{Binding IsSelected}"
-                                                                Command="{Binding DataContext.SetupWizard.SelectChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                CommandParameter="{Binding}"
-                                                                Margin="0,0,0,8">
-                                                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                                                <StackPanel Grid.Column="0" Spacing="4">
-                                                                    <TextBlock Text="{Binding Title}" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
-                                                                    <TextBlock Text="{Binding Description}" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap"/>
+                                        <ItemsControl ItemsSource="{Binding SetupWizard.CurrentStep.Choices}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Button Classes="choice" Classes.active="{Binding IsSelected}"
+                                                            Command="{Binding DataContext.SetupWizard.SelectChoiceCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}"
+                                                            Margin="0,0,0,8">
+                                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                                            <StackPanel Grid.Column="0" Spacing="4">
+                                                                <TextBlock Text="{Binding Title}" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                                                <TextBlock Text="{Binding Description}" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap"/>
+                                                            </StackPanel>
+                                                            <TextBlock Grid.Column="1" Text="已选择" IsVisible="{Binding IsSelected}" Foreground="{DynamicResource AccentColor}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                        </Grid>
+                                                    </Button>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                                            <StackPanel Spacing="10">
+                                                <TextBlock Text="本步骤输入" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                                <ItemsControl ItemsSource="{Binding SetupWizard.CurrentStep.Inputs}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid ColumnDefinitions="220,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="4" Margin="0,0,0,10">
+                                                                <StackPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Spacing="2">
+                                                                    <TextBlock Text="{Binding Label}" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold" FontSize="12"/>
+                                                                    <TextBlock Text="{Binding Description}" Foreground="{DynamicResource TextMuted}" FontSize="11" TextWrapping="Wrap"/>
                                                                 </StackPanel>
-                                                                <TextBlock Grid.Column="1" Text="已选择" IsVisible="{Binding IsSelected}" Foreground="{DynamicResource AccentColor}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Value, Mode=TwoWay}" Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource BorderBrush}"/>
+                                                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path}" Foreground="{DynamicResource TextMuted}" FontFamily="Consolas" FontSize="11"/>
                                                             </Grid>
-                                                        </Button>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-
-                                            <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
-                                                <StackPanel Spacing="10">
-                                                    <TextBlock Text="本步骤输入" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
-                                                    <ItemsControl ItemsSource="{Binding SetupWizard.CurrentStep.Inputs}">
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <Grid ColumnDefinitions="220,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="4" Margin="0,0,0,10">
-                                                                    <StackPanel Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Spacing="2">
-                                                                        <TextBlock Text="{Binding Label}" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold" FontSize="12"/>
-                                                                        <TextBlock Text="{Binding Description}" Foreground="{DynamicResource TextMuted}" FontSize="11" TextWrapping="Wrap"/>
-                                                                    </StackPanel>
-                                                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Value, Mode=TwoWay}" Background="{DynamicResource InputBackground}" BorderBrush="{DynamicResource BorderBrush}"/>
-                                                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path}" Foreground="{DynamicResource TextMuted}" FontFamily="Consolas" FontSize="11"/>
-                                                                </Grid>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                    </ItemsControl>
-                                                    <TextBlock Text="没有额外输入项时，直接选择上方选项并进入下一步。" Foreground="{DynamicResource TextMuted}" FontSize="11" TextWrapping="Wrap"/>
-                                                </StackPanel>
-                                            </Border>
-
-                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                                                <Button Grid.Column="0" Content="请求电机标定" Command="{Binding SetupWizard.CalibrateMotorCommand}" IsVisible="{Binding SetupWizard.CurrentStep.HasMotorCalibration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                                                <Button Grid.Column="1" Content="请求编码器标定" Command="{Binding SetupWizard.CalibrateEncoderCommand}" IsVisible="{Binding SetupWizard.CurrentStep.HasEncoderCalibration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                                            </Grid>
-
-                                            <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
-                                                <TextBlock Text="标定会让电机转动。执行前请固定电机与负载、确认电源与限流设置，并保证急停可用。" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="12"/>
-                                            </Border>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <!-- Review Step Card -->
-                                    <Border Classes="card" IsVisible="{Binding SetupWizard.IsReviewStep}">
-                                        <StackPanel Spacing="14">
-                                            <StackPanel Spacing="6">
-                                                <TextBlock Text="复核并写入" Foreground="{DynamicResource TextPrimary}" FontSize="20" FontWeight="SemiBold"/>
-                                                <TextBlock Text="向导会读取当前值并展示将写入的新值。Apply 只写入当前运行配置，断电保留需点击保存配置至闪存。" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="13"/>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <TextBlock Text="没有额外输入项时，直接选择上方选项并进入下一步。" Foreground="{DynamicResource TextMuted}" FontSize="11" TextWrapping="Wrap"/>
                                             </StackPanel>
+                                        </Border>
 
-                                            <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
-                                                <Grid RowDefinitions="Auto,*" RowSpacing="8">
-                                                    <Grid Grid.Row="0" ColumnDefinitions="2*,*,*,140" ColumnSpacing="12">
-                                                        <TextBlock Text="参数路径" Foreground="{DynamicResource TextMuted}" FontWeight="SemiBold" FontSize="12"/>
-                                                        <TextBlock Grid.Column="1" Text="当前值" Foreground="{DynamicResource TextMuted}" FontWeight="SemiBold" FontSize="12"/>
-                                                        <TextBlock Grid.Column="2" Text="新值" Foreground="{DynamicResource TextMuted}" FontWeight="SemiBold" FontSize="12"/>
-                                                        <TextBlock Grid.Column="3" Text="状态" Foreground="{DynamicResource TextMuted}" FontWeight="SemiBold" FontSize="12"/>
-                                                    </Grid>
-                                                    <ItemsControl Grid.Row="1" ItemsSource="{Binding SetupWizard.DraftEntries}">
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate>
-                                                                <Grid ColumnDefinitions="2*,*,*,140" ColumnSpacing="12" Margin="0,4">
-                                                                    <TextBlock Text="{Binding Path}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" TextWrapping="Wrap" FontSize="12"/>
-                                                                    <TextBlock Grid.Column="1" Text="{Binding CurrentValue}" Foreground="{DynamicResource TextSecondary}" FontFamily="Consolas" TextWrapping="Wrap" FontSize="12"/>
-                                                                    <TextBlock Grid.Column="2" Text="{Binding NewValueText}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas" FontWeight="SemiBold" TextWrapping="Wrap" FontSize="12"/>
-                                                                    <TextBlock Grid.Column="3" Text="{Binding Status}" Foreground="{DynamicResource StatusWarning}" TextWrapping="Wrap" FontSize="12"/>
-                                                                </Grid>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                    </ItemsControl>
+                                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                            <Button Grid.Column="0" Content="请求电机标定" Command="{Binding SetupWizard.CalibrateMotorCommand}" IsVisible="{Binding SetupWizard.CurrentStep.HasMotorCalibration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                            <Button Grid.Column="1" Content="请求编码器标定" Command="{Binding SetupWizard.CalibrateEncoderCommand}" IsVisible="{Binding SetupWizard.CurrentStep.HasEncoderCalibration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                        </Grid>
+
+                                        <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                                            <TextBlock Text="标定会让电机转动。执行前请固定电机与负载、确认电源与限流设置，并保证急停可用。" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="12"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Review Step Card -->
+                                <Border Classes="card" IsVisible="{Binding SetupWizard.IsReviewStep}">
+                                    <StackPanel Spacing="14">
+                                        <StackPanel Spacing="6">
+                                            <TextBlock Text="复核并写入" Foreground="{DynamicResource TextPrimary}" FontSize="20" FontWeight="SemiBold"/>
+                                            <TextBlock Text="向导会读取当前值并展示将写入的新值。Apply 只写入当前运行配置，断电保留需点击保存配置至闪存。" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="13"/>
+                                        </StackPanel>
+
+                                        <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+                                            <Grid RowDefinitions="Auto,*" RowSpacing="8">
+                                                <Grid Grid.Row="0" ColumnDefinitions="2*,*,*,140" ColumnSpacing="12">
+                                                    <TextBlock Text="参数路径" Foreground="{DynamicResource TextMuted}" FontWeight="SemiBold" FontSize="12"/>
+                                                    <TextBlock Grid.Column="1" Text="当前值" Foreground="{DynamicResource TextMuted}" FontWeight="SemiBold" FontSize="12"/>
+                                                    <TextBlock Grid.Column="2" Text="新值" Foreground="{DynamicResource TextMuted}" FontWeight="SemiBold" FontSize="12"/>
+                                                    <TextBlock Grid.Column="3" Text="状态" Foreground="{DynamicResource TextMuted}" FontWeight="SemiBold" FontSize="12"/>
                                                 </Grid>
-                                            </Border>
-
-                                            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
-                                                <Button Grid.Column="0" Content="重新读取当前值" Command="{Binding SetupWizard.RefreshCurrentValuesCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                                                <Button Grid.Column="1" Content="Apply 写入设备" Command="{Binding SetupWizard.ApplyDraftCommand}" Classes="primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                                                <Button Grid.Column="2" Content="保存配置至闪存" Command="{Binding SetupWizard.SaveConfigurationCommand}" Classes="warning" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                                <ItemsControl Grid.Row="1" ItemsSource="{Binding SetupWizard.DraftEntries}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid ColumnDefinitions="2*,*,*,140" ColumnSpacing="12" Margin="0,4">
+                                                                <TextBlock Text="{Binding Path}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" TextWrapping="Wrap" FontSize="12"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding CurrentValue}" Foreground="{DynamicResource TextSecondary}" FontFamily="Consolas" TextWrapping="Wrap" FontSize="12"/>
+                                                                <TextBlock Grid.Column="2" Text="{Binding NewValueText}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas" FontWeight="SemiBold" TextWrapping="Wrap" FontSize="12"/>
+                                                                <TextBlock Grid.Column="3" Text="{Binding Status}" Foreground="{DynamicResource StatusWarning}" TextWrapping="Wrap" FontSize="12"/>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
                                             </Grid>
-                                        </StackPanel>
-                                    </Border>
+                                        </Border>
 
-                                    <!-- Navigation Actions -->
-                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                                        <Button Grid.Column="0" Content="上一步" Command="{Binding SetupWizard.BackCommand}" Padding="18,10"/>
-                                        <TextBlock Grid.Column="1" Text="" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                                        <Button Grid.Column="2" Content="{Binding SetupWizard.NextButtonText}" Command="{Binding SetupWizard.NextCommand}" IsVisible="{Binding SetupWizard.IsNotReviewStep}" Classes="primary" Padding="18,10"/>
-                                    </Grid>
-                                </StackPanel>
+                                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                                            <Button Grid.Column="0" Content="重新读取当前值" Command="{Binding SetupWizard.RefreshCurrentValuesCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                            <Button Grid.Column="1" Content="Apply 写入设备" Command="{Binding SetupWizard.ApplyDraftCommand}" Classes="primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                            <Button Grid.Column="2" Content="保存配置至闪存" Command="{Binding SetupWizard.SaveConfigurationCommand}" Classes="warning" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
 
-                                <!-- Right Column: Status Summary -->
-                                <StackPanel Grid.Column="1" Spacing="16">
-                                    <Border Classes="card" VerticalAlignment="Top">
-                                        <StackPanel Spacing="10">
-                                            <TextBlock Text="向导状态" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
-                                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
-                                            <TextBlock Text="{Binding SetupWizard.ProgressText}" Foreground="{DynamicResource AccentColor}" FontWeight="SemiBold" FontSize="13"/>
-                                            <TextBlock Text="{Binding SetupWizard.StatusText}" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap"/>
-                                        </StackPanel>
-                                    </Border>
-                                </StackPanel>
-                            </Grid>
+                                <!-- Navigation Actions -->
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                    <Button Grid.Column="0" Content="上一步" Command="{Binding SetupWizard.BackCommand}" Padding="18,10"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding SetupWizard.StatusText}" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" TextWrapping="Wrap" HorizontalAlignment="Center"/>
+                                    <Button Grid.Column="2" Content="{Binding SetupWizard.NextButtonText}" Command="{Binding SetupWizard.NextCommand}" IsVisible="{Binding SetupWizard.IsNotReviewStep}" Classes="primary" Padding="18,10"/>
+                                </Grid>
+                            </StackPanel>
                         </StackPanel>
                     </ScrollViewer>
 
