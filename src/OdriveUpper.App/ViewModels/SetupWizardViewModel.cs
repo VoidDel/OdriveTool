@@ -241,6 +241,7 @@ public sealed partial class SetupWizardViewModel : ObservableObject
         {
             Steps[i].IsActive = i == CurrentStepIndex;
             Steps[i].StepNumber = i + 1;
+            Steps[i].ShowSeparator = i < Steps.Count - 1;
         }
 
         OnPropertyChanged(nameof(IsReviewStep));
@@ -539,6 +540,9 @@ public sealed partial class SetupWizardStepViewModel : ObservableObject
 
     [ObservableProperty]
     private SetupWizardChoiceViewModel? _selectedChoice;
+
+    [ObservableProperty]
+    private bool _showSeparator = true;
 
     public bool HasInputs => Inputs.Count > 0;
 

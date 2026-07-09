@@ -118,10 +118,7 @@
 
 
 
-        <!-- Breadcrumb Navigation Styles -->
-        <Style Selector="ItemsControl.breadcrumb ContentPresenter:last-child TextBlock#StepSeparator">
-            <Setter Property="IsVisible" Value="False"/>
-        </Style>
+
 
         <!-- StepBorder Default -->
         <Style Selector="Border#StepBorder">
@@ -688,7 +685,7 @@
                                                     </StackPanel>
                                                 </Border>
                                                 <!-- Separator -->
-                                                <TextBlock Name="StepSeparator" Text="›" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" Margin="6,0" FontSize="14" FontWeight="Bold"/>
+                                                <TextBlock Name="StepSeparator" Text="›" Foreground="{DynamicResource TextSecondary}" IsVisible="{Binding ShowSeparator}" VerticalAlignment="Center" Margin="6,0" FontSize="14" FontWeight="Bold"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
