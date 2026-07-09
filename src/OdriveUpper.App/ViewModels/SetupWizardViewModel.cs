@@ -530,13 +530,21 @@ public sealed partial class SetupWizardStepViewModel : ObservableObject
     private bool _isCompleted;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasCalibration))]
     private bool _hasMotorCalibration;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasCalibration))]
     private bool _hasEncoderCalibration;
 
     [ObservableProperty]
     private SetupWizardChoiceViewModel? _selectedChoice;
+
+    public bool HasInputs => Inputs.Count > 0;
+
+    public bool HasChoices => Choices.Count > 0;
+
+    public bool HasCalibration => HasMotorCalibration || HasEncoderCalibration;
 }
 
 public sealed partial class SetupWizardChoiceViewModel : ObservableObject

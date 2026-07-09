@@ -728,7 +728,7 @@
                                                 <TextBlock Text="{Binding SetupWizard.CurrentStep.Description}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="13"/>
                                             </StackPanel>
 
-                                            <ItemsControl ItemsSource="{Binding SetupWizard.CurrentStep.Choices}">
+                                            <ItemsControl ItemsSource="{Binding SetupWizard.CurrentStep.Choices}" IsVisible="{Binding SetupWizard.CurrentStep.HasChoices}">
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
                                                         <UniformGrid Rows="1" Margin="-6,0"/>
@@ -755,7 +755,7 @@
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
 
-                                            <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                                            <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" IsVisible="{Binding SetupWizard.CurrentStep.HasInputs}">
                                                 <StackPanel Spacing="10">
                                                     <TextBlock Text="本步骤输入" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
                                                     <ItemsControl ItemsSource="{Binding SetupWizard.CurrentStep.Inputs}">
@@ -776,12 +776,12 @@
                                                 </StackPanel>
                                             </Border>
 
-                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" IsVisible="{Binding SetupWizard.CurrentStep.HasCalibration}">
                                                 <Button Grid.Column="0" Content="请求电机标定" Command="{Binding SetupWizard.CalibrateMotorCommand}" IsVisible="{Binding SetupWizard.CurrentStep.HasMotorCalibration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
                                                 <Button Grid.Column="1" Content="请求编码器标定" Command="{Binding SetupWizard.CalibrateEncoderCommand}" IsVisible="{Binding SetupWizard.CurrentStep.HasEncoderCalibration}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
                                             </Grid>
 
-                                            <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                                            <Border Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12" IsVisible="{Binding SetupWizard.CurrentStep.HasCalibration}">
                                                 <TextBlock Text="标定会让电机转动。执行前请固定电机与负载、确认电源与限流设置，并保证急停可用。" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="12"/>
                                             </Border>
                                         </StackPanel>
