@@ -30,6 +30,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private const string IconEncoderPath = "M 8 15 A 7 7 0 1 0 8 1 Z M 8 16 A 8 8 0 1 1 8 0 A 8 8 0 0 1 8 16 Z M 8 10 A 2 2 0 1 0 8 6 A 2 2 0 0 0 8 10 Z M 8 11 A 3 3 0 1 1 8 5 A 3 3 0 0 1 8 11 Z";
     private const string IconGuidePath = "M 3 2 h 10 a 1 1 0 0 1 1 1 v 10 a 1 1 0 0 1 -1 1 H 3 a 1 1 0 0 1 -1 -1 V 3 a 1 1 0 0 1 1 -1 M 4 4 v 8 h 8 V 4 H 4 M 5 5 h 6 v 1 H 5 V 5 M 5 7 h 6 v 1 H 5 V 7 M 5 9 h 4 v 1 H 5 V 9";
     private const string IconSystemPath = "M 14 2 H 6 c -1.1 0 -1.99 0.9 -1.99 2 L 4 20 c 0 1.1 0.89 2 1.99 2 H 18 c 1.1 0 2 -0.9 2 -2 V 8 l -6 -6 z M 16 18 H 8 v -2 h 8 v 2 z M 16 14 H 8 v -2 h 8 v 2 z M 13 9 V 3.5 L 18.5 9 H 13 z";
+    private const string IconChevronLeftPath = "M 11.354 1.646 a 0.5 0.5 0 0 1 0 0.708 L 5.707 8 l 5.647 5.646 a 0.5 0.5 0 0 1 -0.708 0.708 l -6 -6 a 0.5 0.5 0 0 1 0 -0.708 l 6 -6 a 0.5 0.5 0 0 1 0.708 0";
+    private const string IconChevronRightPath = "M 4.646 1.646 a 0.5 0.5 0 0 1 0.708 0 l 6 6 a 0.5 0.5 0 0 1 0 0.708 l -6 6 a 0.5 0.5 0 0 1 -0.708 -0.708 L 10.293 8 L 4.646 2.354 a 0.5 0.5 0 0 1 0 -0.708";
 
     private readonly IReadOnlyList<IDeviceDriver> _drivers =
     [
@@ -175,6 +177,8 @@ public partial class MainWindowViewModel : ViewModelBase
     public string IconEncoder => IconEncoderPath;
     public string IconGuide => IconGuidePath;
     public string IconSystem => IconSystemPath;
+    public string IconChevronLeft => IconChevronLeftPath;
+    public string IconChevronRight => IconChevronRightPath;
 
     [ObservableProperty]
     private string _currentThemeName = "跟随系统";

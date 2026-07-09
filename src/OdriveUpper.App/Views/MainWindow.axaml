@@ -776,9 +776,19 @@
 
                                 <!-- Navigation Actions -->
                                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                                    <Button Grid.Column="0" Content="上一步" Command="{Binding SetupWizard.BackCommand}" Padding="18,10"/>
+                                    <Button Grid.Column="0" Command="{Binding SetupWizard.BackCommand}" Padding="18,10">
+                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                            <PathIcon Width="10" Height="10" Data="{Binding IconChevronLeft}"/>
+                                            <TextBlock Text="上一步" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
                                     <TextBlock Grid.Column="1" Text="{Binding SetupWizard.StatusText}" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" TextWrapping="Wrap" HorizontalAlignment="Center"/>
-                                    <Button Grid.Column="2" Content="{Binding SetupWizard.NextButtonText}" Command="{Binding SetupWizard.NextCommand}" IsVisible="{Binding SetupWizard.IsNotReviewStep}" Classes="primary" Padding="18,10"/>
+                                    <Button Grid.Column="2" Command="{Binding SetupWizard.NextCommand}" IsVisible="{Binding SetupWizard.IsNotReviewStep}" Classes="primary" Padding="18,10">
+                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding SetupWizard.NextButtonText}" VerticalAlignment="Center"/>
+                                            <PathIcon Width="10" Height="10" Data="{Binding IconChevronRight}"/>
+                                        </StackPanel>
+                                    </Button>
                                 </Grid>
                             </StackPanel>
                         </StackPanel>
