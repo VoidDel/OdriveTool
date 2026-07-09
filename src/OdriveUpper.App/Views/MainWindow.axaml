@@ -674,8 +674,18 @@
                                 </ScrollViewer>
                             </Border>
 
-                            <!-- Wizard Content Panel -->
-                            <StackPanel Spacing="16">
+                            <!-- Wizard Content Panel with Left/Right Buttons -->
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="20" VerticalAlignment="Center">
+                                <!-- Left Column: Circle Back Button -->
+                                <Button Grid.Column="0" Command="{Binding SetupWizard.BackCommand}" 
+                                        Width="44" Height="44" CornerRadius="22" Padding="0"
+                                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                        VerticalAlignment="Center" ToolTip.Tip="上一步">
+                                    <PathIcon Width="16" Height="16" Data="{Binding IconChevronLeft}"/>
+                                </Button>
+
+                                <!-- Middle Column: Step Configuration Details -->
+                                <StackPanel Grid.Column="1" Spacing="16">
                                 <!-- Configuration Step Card -->
                                 <Border Classes="card" IsVisible="{Binding SetupWizard.IsNotReviewStep}">
                                     <StackPanel Spacing="16">
@@ -774,23 +784,18 @@
                                     </StackPanel>
                                 </Border>
 
-                                <!-- Navigation Actions -->
-                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                                    <Button Grid.Column="0" Command="{Binding SetupWizard.BackCommand}" Padding="18,10">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <PathIcon Width="10" Height="10" Data="{Binding IconChevronLeft}"/>
-                                            <TextBlock Text="上一步" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
-                                    <TextBlock Grid.Column="1" Text="{Binding SetupWizard.StatusText}" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" TextWrapping="Wrap" HorizontalAlignment="Center"/>
-                                    <Button Grid.Column="2" Command="{Binding SetupWizard.NextCommand}" IsVisible="{Binding SetupWizard.IsNotReviewStep}" Classes="primary" Padding="18,10">
-                                        <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding SetupWizard.NextButtonText}" VerticalAlignment="Center"/>
-                                            <PathIcon Width="10" Height="10" Data="{Binding IconChevronRight}"/>
-                                        </StackPanel>
-                                    </Button>
-                                </Grid>
-                            </StackPanel>
+                                    <!-- Status Text -->
+                                    <TextBlock Text="{Binding SetupWizard.StatusText}" Foreground="{DynamicResource TextSecondary}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,8,0,0"/>
+                                </StackPanel>
+
+                                <!-- Right Column: Circle Next Button -->
+                                <Button Grid.Column="2" Command="{Binding SetupWizard.NextCommand}" IsVisible="{Binding SetupWizard.IsNotReviewStep}" 
+                                        Classes="primary" Width="44" Height="44" CornerRadius="22" Padding="0"
+                                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                        VerticalAlignment="Center" ToolTip.Tip="下一步">
+                                    <PathIcon Width="16" Height="16" Data="{Binding IconChevronRight}"/>
+                                </Button>
+                            </Grid>
                         </StackPanel>
                     </ScrollViewer>
 
