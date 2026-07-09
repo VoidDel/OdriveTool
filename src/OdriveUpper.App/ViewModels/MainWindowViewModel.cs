@@ -27,6 +27,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private const string IconDashboardPath = "M 6 2 a 0.5 0.5 0 0 1 0.47 0.33 L 10 12.036 l 1.53 -4.208 A 0.5 0.5 0 0 1 12 7.5 h 3.5 a 0.5 0.5 0 0 1 0 1 h -3.15 l -1.88 5.17 a 0.5 0.5 0 0 1 -0.94 0 L 6 3.964 L 4.47 8.171 A 0.5 0.5 0 0 1 4 8.5 H 0.5 a 0.5 0.5 0 0 1 0 -1 h 3.15 l 1.88 -5.17 A 0.5 0.5 0 0 1 6 2";
     private const string IconControlPath = "M 10.5 1 a 0.5 0.5 0 0 1 0.5 0.5 v 4 a 0.5 0.5 0 0 1 -1 0 V 4 H 1.5 a 0.5 0.5 0 0 1 0 -1 H 10 V 1.5 a 0.5 0.5 0 0 1 0.5 -0.5 M 12 3.5 a 0.5 0.5 0 0 1 0.5 -0.5 h 2 a 0.5 0.5 0 0 1 0 1 h -2 a 0.5 0.5 0 0 1 -0.5 -0.5 m -6.5 2 A 0.5 0.5 0 0 1 6 6 v 1.5 h 8.5 a 0.5 0.5 0 0 1 0 1 H 6 V 10 a 0.5 0.5 0 0 1 -1 0 V 6 a 0.5 0.5 0 0 1 0.5 -0.5 M 1 8 a 0.5 0.5 0 0 1 0.5 -0.5 h 2 a 0.5 0.5 0 0 1 0 1 h -2 A 0.5 0.5 0 0 1 1 8 m 9.5 2 a 0.5 0.5 0 0 1 0.5 0.5 v 4 a 0.5 0.5 0 0 1 -1 0 V 13 H 1.5 a 0.5 0.5 0 0 1 0 -1 H 10 v -1.5 a 0.5 0.5 0 0 1 0.5 -0.5 m 1.5 2.5 a 0.5 0.5 0 0 1 0.5 -0.5 h 2 a 0.5 0.5 0 0 1 0 1 h -2 a 0.5 0.5 0 0 1 -0.5 -0.5";
+    private const string IconMotorPath = "M 6 1 h 4 v 2 h 2 a 2 2 0 0 1 2 2 v 6 a 2 2 0 0 1 -2 2 h -2 v 2 H 6 v -2 H 4 a 2 2 0 0 1 -2 -2 V 5 a 2 2 0 0 1 2 -2 h 2 V 1 Z M 5 5 a 1 1 0 0 0 -1 1 v 4 a 1 1 0 0 0 1 1 h 6 a 1 1 0 0 0 1 -1 V 6 a 1 1 0 0 0 -1 -1 H 5 Z M 6 7 h 4 v 2 H 6 V 7 Z";
     private const string IconEncoderPath = "M 8 15 A 7 7 0 1 0 8 1 Z M 8 16 A 8 8 0 1 1 8 0 A 8 8 0 0 1 8 16 Z M 8 10 A 2 2 0 1 0 8 6 A 2 2 0 0 0 8 10 Z M 8 11 A 3 3 0 1 1 8 5 A 3 3 0 0 1 8 11 Z";
     private const string IconGuidePath = "M 3 2 h 10 a 1 1 0 0 1 1 1 v 10 a 1 1 0 0 1 -1 1 H 3 a 1 1 0 0 1 -1 -1 V 3 a 1 1 0 0 1 1 -1 M 4 4 v 8 h 8 V 4 H 4 M 5 5 h 6 v 1 H 5 V 5 M 5 7 h 6 v 1 H 5 V 7 M 5 9 h 4 v 1 H 5 V 9";
     private const string IconSystemPath = "M 14 2 H 6 c -1.1 0 -1.99 0.9 -1.99 2 L 4 20 c 0 1.1 0.89 2 1.99 2 H 18 c 1.1 0 2 -0.9 2 -2 V 8 l -6 -6 z M 16 18 H 8 v -2 h 8 v 2 z M 16 14 H 8 v -2 h 8 v 2 z M 13 9 V 3.5 L 18.5 9 H 13 z";
@@ -126,7 +127,25 @@ public partial class MainWindowViewModel : ViewModelBase
     private string _vbusVoltageText = "—";
 
     [ObservableProperty]
+    private string _ibusText = "—";
+
+    [ObservableProperty]
     private string _iqMeasuredText = "—";
+
+    [ObservableProperty]
+    private string _iqSetpointText = "—";
+
+    [ObservableProperty]
+    private string _motorTemperatureText = "—";
+
+    [ObservableProperty]
+    private string _fetTemperatureText = "—";
+
+    [ObservableProperty]
+    private string _motorArmedText = "—";
+
+    [ObservableProperty]
+    private string _motorCalibratedText = "—";
 
     [ObservableProperty]
     private string _encoderPositionText = "—";
@@ -146,10 +165,23 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string _tamagawaMultiTurnText = "—";
 
+    [ObservableProperty]
+    private string _encoderReadyText = "—";
+
+    [ObservableProperty]
+    private string _encoderIndexFoundText = "—";
+
+    [ObservableProperty]
+    private string _encoderShadowCountText = "—";
+
+    [ObservableProperty]
+    private string _encoderCountInCprText = "—";
+
     // --- UI Navigation and Theme ---
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsDashboardActive))]
     [NotifyPropertyChangedFor(nameof(IsControlActive))]
+    [NotifyPropertyChangedFor(nameof(IsMotorActive))]
     [NotifyPropertyChangedFor(nameof(IsEncoderActive))]
     [NotifyPropertyChangedFor(nameof(IsGuideActive))]
     [NotifyPropertyChangedFor(nameof(IsSystemActive))]
@@ -158,6 +190,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public bool IsDashboardActive => SelectedTab == "Dashboard";
     public bool IsControlActive => SelectedTab == "Control";
+    public bool IsMotorActive => SelectedTab == "Motor";
     public bool IsEncoderActive => SelectedTab == "Encoder";
     public bool IsGuideActive => SelectedTab == "Guide";
     public bool IsSystemActive => SelectedTab == "System";
@@ -165,8 +198,9 @@ public partial class MainWindowViewModel : ViewModelBase
     public string SelectedTabTitle => SelectedTab switch
     {
         "Dashboard" => "实时遥测",
-        "Control" => "控制与调试",
-        "Encoder" => "多摩川编码器",
+        "Control" => "控制模式与给定",
+        "Motor" => "电机与标定",
+        "Encoder" => "编码器反馈",
         "Guide" => "设置指引",
         "System" => "固件与 Schema",
         _ => SelectedTab
@@ -174,6 +208,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public string IconDashboard => IconDashboardPath;
     public string IconControl => IconControlPath;
+    public string IconMotor => IconMotorPath;
     public string IconEncoder => IconEncoderPath;
     public string IconGuide => IconGuidePath;
     public string IconSystem => IconSystemPath;
@@ -698,7 +733,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private void StartTelemetry(IDeviceSession session)
     {
         _telemetryCts = new CancellationTokenSource();
-        var telemetryPaths = new List<string> { "vbus_voltage" };
+        var telemetryPaths = new List<string> { "vbus_voltage", "ibus" };
         foreach (var axis in AvailableAxes)
         {
             telemetryPaths.AddRange([
@@ -709,7 +744,16 @@ public partial class MainWindowViewModel : ViewModelBase
                 $"axis{axis}.controller.error",
                 $"axis{axis}.encoder.pos_estimate",
                 $"axis{axis}.encoder.vel_estimate",
+                $"axis{axis}.encoder.is_ready",
+                $"axis{axis}.encoder.index_found",
+                $"axis{axis}.encoder.shadow_count",
+                $"axis{axis}.encoder.count_in_cpr",
+                $"axis{axis}.motor.is_armed",
+                $"axis{axis}.motor.is_calibrated",
                 $"axis{axis}.motor.current_control.iq_measured",
+                $"axis{axis}.motor.current_control.iq_setpoint",
+                $"axis{axis}.motor.motor_thermistor.temperature",
+                $"axis{axis}.motor.fet_thermistor.temperature",
                 $"axis{axis}.tamagawa.crc_error_count",
                 $"axis{axis}.tamagawa.absolute_position",
                 $"axis{axis}.tamagawa.multi_turn_count",
@@ -763,6 +807,12 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
+        if (path == "ibus")
+        {
+            IbusText = $"{ToDouble(value):0.00} A";
+            return;
+        }
+
         var selectedAxisPrefix = $"axis{SelectedAxis}.";
         if (!path.StartsWith(selectedAxisPrefix, StringComparison.OrdinalIgnoreCase))
         {
@@ -788,14 +838,41 @@ public partial class MainWindowViewModel : ViewModelBase
             case "controller.error":
                 ControllerErrorText = FormatErrorWord(GetLong(value));
                 break;
+            case "motor.is_armed":
+                MotorArmedText = FormatBooleanState(value, "已上电", "未上电");
+                break;
+            case "motor.is_calibrated":
+                MotorCalibratedText = FormatBooleanState(value, "已标定", "未标定");
+                break;
             case "motor.current_control.iq_measured":
                 IqMeasuredText = $"{ToDouble(value):0.00} A";
+                break;
+            case "motor.current_control.iq_setpoint":
+                IqSetpointText = $"{ToDouble(value):0.00} A";
+                break;
+            case "motor.motor_thermistor.temperature":
+                MotorTemperatureText = FormatTemperature(value);
+                break;
+            case "motor.fet_thermistor.temperature":
+                FetTemperatureText = FormatTemperature(value);
                 break;
             case "encoder.pos_estimate":
                 EncoderPositionText = $"{ToDouble(value):0.000} Turns";
                 break;
             case "encoder.vel_estimate":
                 EncoderVelocityRpmText = $"{ToDouble(value) * 60.0:0.0} RPM";
+                break;
+            case "encoder.is_ready":
+                EncoderReadyText = FormatBooleanState(value, "Ready", "Not Ready");
+                break;
+            case "encoder.index_found":
+                EncoderIndexFoundText = FormatBooleanState(value, "Found", "Not Found");
+                break;
+            case "encoder.shadow_count":
+                EncoderShadowCountText = FormatTelemetryValue(value);
+                break;
+            case "encoder.count_in_cpr":
+                EncoderCountInCprText = FormatTelemetryValue(value);
                 break;
             case "tamagawa.crc_error_count":
                 TamagawaCrcErrorCountText = FormatTelemetryValue(value);
@@ -927,6 +1004,24 @@ public partial class MainWindowViewModel : ViewModelBase
         double d => d.ToString("0.####"),
         float f => f.ToString("0.####"),
         _ => Convert.ToString(value) ?? "—"
+    };
+
+    private static string FormatTemperature(object? value)
+    {
+        var temperature = ToDouble(value);
+        return temperature == 0.0 && value is null ? "—" : $"{temperature:0.0} °C";
+    }
+
+    private static string FormatBooleanState(object? value, string trueText, string falseText) => value switch
+    {
+        bool b => b ? trueText : falseText,
+        int i => i != 0 ? trueText : falseText,
+        long l => l != 0 ? trueText : falseText,
+        double d => Math.Abs(d) > double.Epsilon ? trueText : falseText,
+        string s when bool.TryParse(s, out var b) => b ? trueText : falseText,
+        string s when long.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var l) => l != 0 ? trueText : falseText,
+        null => "—",
+        _ => FormatTelemetryValue(value)
     };
 
     private static double ToDouble(object? value) => value switch
