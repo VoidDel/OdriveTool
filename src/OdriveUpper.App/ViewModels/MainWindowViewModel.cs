@@ -88,6 +88,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(RefreshDevicesCommand))]
     [NotifyCanExecuteChangedFor(nameof(ConnectSelectedDeviceCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SendTargetCommand))]
     private bool _isDeviceBusy;
 
     [ObservableProperty]
