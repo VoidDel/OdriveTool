@@ -5,12 +5,56 @@ namespace OdriveUpper.Drivers.Firmware;
 
 public sealed class OdriveInterfaceYamlSchemaProvider
 {
-    private const string DefaultInterfacePath = @"D:\xiafeng\Project\Odrive\ODrive\Firmware\odrive-interface.yaml";
+    private const string LegacyDefaultInterfacePath = @"D:\xiafeng\Project\Odrive\ODrive\Firmware\odrive-interface.yaml";
+    private const string InterfaceFileName = "odrive-interface.yaml";
     private readonly string _interfacePath;
 
     public OdriveInterfaceYamlSchemaProvider(string? interfacePath = null)
     {
-        _interfacePath = interfacePath ?? DefaultInterfacePath;
+        _interfacePath = interfacePath ?? ResolveInterfacePath();
+    }
+
+    private static string ResolveInterfacePath()
+    {
+        var configuredPath = Environment.GetEnvironmentVariable("ODRIVE_INTERFACE_PATH");
+        if (!string.IsNullOrWhiteSpace(configuredPath))
+        {
+            return configuredPath;
+        }
+
+        foreach (var root in GetSearchRoots())
+        {
+            foreach (var relativePath in new[]
+                     {
+                         InterfaceFileName,
+                         Path.Combine("Firmware", InterfaceFileName),
+                         Path.Combine("ODrive", "Firmware", InterfaceFileName)
+                     })
+            {
+                var candidate = Path.Combine(root, relativePath);
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+            }
+        }
+
+        return LegacyDefaultInterfacePath;
+    }
+
+    private static IEnumerable<string> GetSearchRoots()
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var startPath in new[] { AppContext.BaseDirectory, Directory.GetCurrentDirectory() })
+        {
+            for (var directory = new DirectoryInfo(startPath); directory is not null; directory = directory.Parent)
+            {
+                if (seen.Add(directory.FullName))
+                {
+                    yield return directory.FullName;
+                }
+            }
+        }
     }
 
     public bool IsAvailable => File.Exists(_interfacePath);

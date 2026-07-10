@@ -66,7 +66,7 @@ public sealed class SerialAsciiOdriveSession : IDeviceSession
 
         _info = new DeviceInfo(
             SerialNumber: $"{portName}:{serial}",
-            DisplayName: $"ODrive {serial} ({portName})",
+            DisplayName: $"ODrive {serial}",
             FirmwareVersion: $"{fwMajor}.{fwMinor}.{fwRevision}",
             HardwareVersion: $"{hwMajor}.{hwMinor}.{hwVariant}",
             DriverName: "ODrive ASCII Serial Driver",
