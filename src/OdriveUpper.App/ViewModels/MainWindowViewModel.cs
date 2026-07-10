@@ -91,6 +91,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private bool _isDeviceBusy;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ConnectSelectedDeviceCommand))]
     private DeviceListItemViewModel? _selectedDevice;
 
     [ObservableProperty]
@@ -414,11 +415,35 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         IsDeviceBusy = true;
-        Devices.Clear();
-        ConnectionStatus = "正在后台扫描真实 ODrive 设备...";
-
         try
         {
+            if (_session is not null)
+            {
+                ConnectionStatus = "正在断开当前设备...";
+                _telemetryCts?.Cancel();
+
+                var session = _session;
+                _session = null;
+                _telemetryCts = null;
+                try
+                {
+                    await session.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(2));
+                }
+                catch (TimeoutException)
+                {
+                    ConnectionStatus = "断开设备超时，请拔插设备后重试";
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    ConnectionStatus = $"断开设备失败：{ex.Message}";
+                    return;
+                }
+            }
+
+            Devices.Clear();
+            ConnectionStatus = "正在后台扫描真实 ODrive 设备...";
+
             var discovered = await Task.Run(async () =>
             {
                 var results = new List<DeviceListItemViewModel>();
@@ -440,27 +465,21 @@ public partial class MainWindowViewModel : ViewModelBase
                 return results;
             });
 
-            Devices.Clear();
             foreach (var item in discovered.Where(item => !item.SerialNumber.StartsWith("error:", StringComparison.OrdinalIgnoreCase)))
             {
                 Devices.Add(item);
             }
 
             SelectedDevice = Devices.FirstOrDefault();
-            ConnectionStatus = Devices.Count == 0 ? "未发现设备" : $"发现 {Devices.Count} 个设备";
+            ConnectionStatus = Devices.Count == 0 ? "未发现设备" : $"发现 {Devices.Count} 个设备，请点击“连接设备”";
         }
         finally
         {
             IsDeviceBusy = false;
         }
-
-        if (SelectedDevice is not null)
-        {
-            await ConnectSelectedDeviceAsync();
-        }
     }
 
-    [RelayCommand(CanExecute = nameof(CanRunDeviceOperation))]
+    [RelayCommand(CanExecute = nameof(CanConnectSelectedDevice))]
     private async Task ConnectSelectedDeviceAsync()
     {
         if (SelectedDevice is null)
@@ -469,13 +488,13 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        IsDeviceBusy = true;
-        _telemetryCts?.Cancel();
         if (_session is not null)
         {
-            await _session.DisposeAsync();
+            ConnectionStatus = $"已连接：{_session.Info.DisplayName}";
+            return;
         }
 
+        IsDeviceBusy = true;
         var selected = SelectedDevice;
         ConnectionStatus = $"正在后台连接 {selected.SerialNumber}...";
 
@@ -505,7 +524,7 @@ public partial class MainWindowViewModel : ViewModelBase
             BuildParameterTree(_schema);
 
             ConnectionStatus = $"已连接：{_session.Info.DisplayName}";
-            StartTelemetry(_session);
+            StartTelemetry(_session, connected.capabilities);
         }
         catch (Exception ex)
         {
@@ -518,6 +537,8 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     private bool CanRunDeviceOperation() => !IsDeviceBusy;
+
+    private bool CanConnectSelectedDevice() => !IsDeviceBusy && _session is null && SelectedDevice is not null;
 
     [RelayCommand(CanExecute = nameof(CanReadSelectedParameter))]
     private async Task ReadSelectedParameterAsync()
@@ -730,9 +751,10 @@ public partial class MainWindowViewModel : ViewModelBase
         return value;
     }
 
-    private void StartTelemetry(IDeviceSession session)
+    private void StartTelemetry(IDeviceSession session, DeviceCapabilities capabilities)
     {
-        _telemetryCts = new CancellationTokenSource();
+        var telemetryCts = new CancellationTokenSource();
+        _telemetryCts = telemetryCts;
         var telemetryPaths = new List<string> { "vbus_voltage", "ibus" };
         foreach (var axis in AvailableAxes)
         {
@@ -753,13 +775,19 @@ public partial class MainWindowViewModel : ViewModelBase
                 $"axis{axis}.motor.current_control.iq_measured",
                 $"axis{axis}.motor.current_control.iq_setpoint",
                 $"axis{axis}.motor.motor_thermistor.temperature",
-                $"axis{axis}.motor.fet_thermistor.temperature",
-                $"axis{axis}.tamagawa.crc_error_count",
-                $"axis{axis}.tamagawa.absolute_position",
-                $"axis{axis}.tamagawa.multi_turn_count",
-                $"axis{axis}.tamagawa.warning_status",
-                $"axis{axis}.tamagawa.error_status"
+                $"axis{axis}.motor.fet_thermistor.temperature"
             ]);
+
+            if (capabilities.SupportsTamagawaEncoder)
+            {
+                telemetryPaths.AddRange([
+                    $"axis{axis}.tamagawa.crc_error_count",
+                    $"axis{axis}.tamagawa.absolute_position",
+                    $"axis{axis}.tamagawa.multi_turn_count",
+                    $"axis{axis}.tamagawa.warning_status",
+                    $"axis{axis}.tamagawa.error_status"
+                ]);
+            }
         }
 
         var subscription = new TelemetrySubscription(telemetryPaths, TimeSpan.FromMilliseconds(250));
@@ -768,7 +796,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             try
             {
-                await foreach (var frame in session.SubscribeTelemetryAsync(subscription, _telemetryCts.Token))
+                await foreach (var frame in session.SubscribeTelemetryAsync(subscription, telemetryCts.Token))
                 {
                     Dispatcher.UIThread.Post(() => UpdateTelemetry(frame));
                 }
@@ -776,6 +804,14 @@ public partial class MainWindowViewModel : ViewModelBase
             catch (OperationCanceledException)
             {
                 // Expected when reconnecting or closing the app.
+            }
+            catch (Exception) when (telemetryCts.IsCancellationRequested)
+            {
+                // Closing the serial port interrupts an in-flight read.
+            }
+            catch (Exception ex)
+            {
+                Dispatcher.UIThread.Post(() => ConnectionStatus = $"遥测已停止：{ex.Message}");
             }
         });
     }

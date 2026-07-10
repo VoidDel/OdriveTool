@@ -43,6 +43,7 @@ public sealed class SerialAsciiOdriveSession : IDeviceSession
     private readonly SerialPort _port;
     private readonly SemaphoreSlim _ioLock = new(1, 1);
     private readonly DeviceInfo _info;
+    private int _disposed;
 
     public SerialAsciiOdriveSession(string portName, int baudRate)
     {
@@ -219,14 +220,23 @@ public sealed class SerialAsciiOdriveSession : IDeviceSession
 
     public async ValueTask DisposeAsync()
     {
+        if (Interlocked.Exchange(ref _disposed, 1) != 0)
+        {
+            return;
+        }
+
+        try
+        {
+            _port.Close();
+        }
+        catch (InvalidOperationException)
+        {
+            // The port was already closed after an interrupted read.
+        }
+
         await _ioLock.WaitAsync();
         try
         {
-            if (_port.IsOpen)
-            {
-                _port.Close();
-            }
-
             _port.Dispose();
         }
         finally
@@ -269,7 +279,7 @@ public sealed class SerialAsciiOdriveSession : IDeviceSession
         foreach (var candidate in paths)
         {
             var response = await ReadScalarAsync(candidate, cancellationToken);
-            if (IsInvalidProperty(response) || IsErrorResponse(response))
+            if (string.IsNullOrWhiteSpace(response) || IsInvalidProperty(response) || IsErrorResponse(response))
             {
                 lastError = response;
                 continue;

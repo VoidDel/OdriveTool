@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using System.IO.Ports;
 using System.Management;
+using System.Text.RegularExpressions;
 using OdriveUpper.Core.Devices;
 
 namespace OdriveUpper.Drivers.Serial;
@@ -59,7 +61,9 @@ public sealed class SerialAsciiOdriveDriver : IDeviceDriver
             var device = session.Info;
             var serial = device.SerialNumber.Split(':', 2).LastOrDefault();
 
-            if (string.IsNullOrWhiteSpace(serial) || serial.Contains("invalid", StringComparison.OrdinalIgnoreCase))
+            if (!ulong.TryParse(serial, out _) ||
+                !Version.TryParse(device.FirmwareVersion, out _) ||
+                !Version.TryParse(device.HardwareVersion, out _))
             {
                 return null;
             }
@@ -98,15 +102,16 @@ public sealed class SerialAsciiOdriveDriver : IDeviceDriver
             yield break;
         }
 
+        var odriveUsbSerials = GetMacOSOdriveUsbSerials();
+        if (odriveUsbSerials.Count == 0)
+        {
+            yield break;
+        }
+
         string[] portNames;
         try
         {
-            portNames =
-            [
-                .. Directory.EnumerateFiles("/dev", "cu.usb*"),
-                .. Directory.EnumerateFiles("/dev", "cu.SLAB_USBtoUART*"),
-                .. Directory.EnumerateFiles("/dev", "cu.wchusbserial*")
-            ];
+            portNames = Directory.EnumerateFiles("/dev", "cu.usb*").ToArray();
         }
         catch (IOException)
         {
@@ -118,10 +123,54 @@ public sealed class SerialAsciiOdriveDriver : IDeviceDriver
         }
 
         foreach (var portName in portNames
-            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Where(port => odriveUsbSerials.Any(serial => port.Contains(serial, StringComparison.OrdinalIgnoreCase)))
             .Order(StringComparer.OrdinalIgnoreCase))
         {
             yield return portName;
+        }
+    }
+
+    private static IReadOnlySet<string> GetMacOSOdriveUsbSerials()
+    {
+        try
+        {
+            using var process = Process.Start(new ProcessStartInfo
+            {
+                FileName = "/usr/sbin/ioreg",
+                Arguments = "-r -c IOUSBHostDevice -l -w 0",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            });
+            if (process is null)
+            {
+                return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            var outputTask = process.StandardOutput.ReadToEndAsync();
+            if (!process.WaitForExit(2000))
+            {
+                process.Kill(entireProcessTree: true);
+                return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            var output = outputTask.GetAwaiter().GetResult();
+            if (process.ExitCode != 0)
+            {
+                return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            }
+
+            return Regex.Matches(
+                    output,
+                    @"\+\-o[^\r\n]*\bODrive\b[^\r\n]*\r?\n.*?\""kUSBSerialNumberString\""\s*=\s*\""(?<serial>[^\""]+)\""",
+                    RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)
+                .Select(match => match.Groups["serial"].Value)
+                .Where(serial => !string.IsNullOrWhiteSpace(serial))
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        }
+        catch (Exception)
+        {
+            return new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         }
     }
 
