@@ -285,29 +285,20 @@ public partial class MainWindowViewModel : ViewModelBase
         _ = WriteSingleAsync(AxisPath("controller.config.control_mode"), mode);
     }
 
-    partial void OnTargetPositionChanged(double value)
+    [RelayCommand(CanExecute = nameof(CanRunDeviceOperation))]
+    private Task SendTargetAsync() => ControlMode switch
     {
-        if (IsPositionMode)
-        {
-            _ = WriteSingleAsync(AxisPath("controller.input_pos"), value);
-        }
-    }
-
-    partial void OnTargetVelocityChanged(double value)
-    {
-        if (IsVelocityMode)
-        {
-            _ = WriteSingleAsync(AxisPath("controller.input_vel"), value / 60.0);
-        }
-    }
-
-    partial void OnTargetTorqueChanged(double value)
-    {
-        if (IsTorqueMode)
-        {
-            _ = WriteSingleAsync(AxisPath("controller.input_torque"), value);
-        }
-    }
+        "位置控制" => WriteManyAsync(
+            [new PropertyWrite(AxisPath("controller.input_pos"), TargetPosition)],
+            $"设置目标位置 {TargetPosition:F2} Turns"),
+        "速度控制" => WriteManyAsync(
+            [new PropertyWrite(AxisPath("controller.input_vel"), TargetVelocity / 60.0)],
+            $"设置目标速度 {TargetVelocity:F1} RPM"),
+        "力矩控制" => WriteManyAsync(
+            [new PropertyWrite(AxisPath("controller.input_torque"), TargetTorque)],
+            $"设置目标力矩 {TargetTorque:F2} Nm"),
+        _ => Task.CompletedTask
+    };
 
     partial void OnPosGainChanged(double value) => _ = WriteSingleAsync(AxisPath("controller.config.pos_gain"), value);
 

@@ -600,30 +600,34 @@
 
                             <TextBlock Text="目标给定 (Setpoints)" Classes="section-title"/>
                             <Border Classes="card">
-                                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="16">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
                                     <StackPanel Grid.Column="0" Spacing="8" IsVisible="{Binding IsPositionMode}">
-                                        <Grid ColumnDefinitions="*,Auto">
-                                            <TextBlock Text="目标位置 (Turns)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding TargetPosition, StringFormat={}{0:F2}}" Foreground="{DynamicResource AccentColor}" FontWeight="Bold"/>
-                                        </Grid>
-                                        <Slider Minimum="-10" Maximum="10" Value="{Binding TargetPosition}" TickFrequency="0.1" IsSnapToTickEnabled="False"/>
+                                        <TextBlock Text="目标位置 (Turns)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                        <TextBox Text="{Binding TargetPosition, Mode=TwoWay, StringFormat={}{0:F2}}"
+                                                 TextAlignment="Right"
+                                                 FontFamily="Consolas"/>
                                     </StackPanel>
 
-                                    <StackPanel Grid.Column="1" Spacing="8" IsVisible="{Binding IsVelocityMode}">
-                                        <Grid ColumnDefinitions="*,Auto">
-                                            <TextBlock Text="目标速度 (RPM)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding TargetVelocity, StringFormat={}{0:F1}}" Foreground="{DynamicResource AccentColor}" FontWeight="Bold"/>
-                                        </Grid>
-                                        <Slider Minimum="-1000" Maximum="1000" Value="{Binding TargetVelocity}" TickFrequency="10" IsSnapToTickEnabled="False"/>
+                                    <StackPanel Grid.Column="0" Spacing="8" IsVisible="{Binding IsVelocityMode}">
+                                        <TextBlock Text="目标速度 (RPM)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                        <TextBox Text="{Binding TargetVelocity, Mode=TwoWay, StringFormat={}{0:F1}}"
+                                                 TextAlignment="Right"
+                                                 FontFamily="Consolas"/>
                                     </StackPanel>
 
-                                    <StackPanel Grid.Column="2" Spacing="8" IsVisible="{Binding IsTorqueMode}">
-                                        <Grid ColumnDefinitions="*,Auto">
-                                            <TextBlock Text="目标力矩 (Nm)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding TargetTorque, StringFormat={}{0:F2}}" Foreground="{DynamicResource AccentColor}" FontWeight="Bold"/>
-                                        </Grid>
-                                        <Slider Minimum="-2.0" Maximum="2.0" Value="{Binding TargetTorque}" TickFrequency="0.05" IsSnapToTickEnabled="False"/>
+                                    <StackPanel Grid.Column="0" Spacing="8" IsVisible="{Binding IsTorqueMode}">
+                                        <TextBlock Text="目标力矩 (Nm)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                        <TextBox Text="{Binding TargetTorque, Mode=TwoWay, StringFormat={}{0:F2}}"
+                                                 TextAlignment="Right"
+                                                 FontFamily="Consolas"/>
                                     </StackPanel>
+
+                                    <Button Grid.Column="1"
+                                            Content="发送设置"
+                                            Command="{Binding SendTargetCommand}"
+                                            Classes="primary"
+                                            Padding="18,8"
+                                            VerticalAlignment="Bottom"/>
                                 </Grid>
                             </Border>
 
