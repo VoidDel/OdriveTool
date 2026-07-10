@@ -13,13 +13,28 @@ public sealed class SerialAsciiOdriveDriver : IDeviceDriver
     public async Task<IReadOnlyList<DeviceInfo>> DiscoverAsync(CancellationToken cancellationToken)
     {
         var devices = new List<DeviceInfo>();
-        var ports = GetCandidatePortNames();
 
-        foreach (var portName in ports)
+        foreach (var portName in GetCandidatePortNames())
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var device = await TryCreateDeviceAsync(portName, cancellationToken);
+            // Some macOS virtual serial ports never honor SerialPort.ReadTimeout.
+            // Bound each probe so one such port cannot leave the UI scanning forever.
+            var probeTask = Task.Factory.StartNew(
+                () => TryCreateDeviceAsync(portName, cancellationToken),
+                CancellationToken.None,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default).Unwrap();
+            DeviceInfo? device;
+            try
+            {
+                device = await probeTask.WaitAsync(TimeSpan.FromSeconds(2), cancellationToken);
+            }
+            catch (TimeoutException)
+            {
+                continue;
+            }
+
             if (device is not null)
             {
                 devices.Add(device);
@@ -39,27 +54,17 @@ public sealed class SerialAsciiOdriveDriver : IDeviceDriver
     {
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             await using var session = new SerialAsciiOdriveSession(portName, DefaultBaudRate);
-            var serial = await session.ReadScalarAsync("serial_number", cancellationToken);
-            var fwMajor = await session.ReadScalarAsync("fw_version_major", cancellationToken);
-            var fwMinor = await session.ReadScalarAsync("fw_version_minor", cancellationToken);
-            var fwRevision = await session.ReadScalarAsync("fw_version_revision", cancellationToken);
-            var hwMajor = await session.ReadScalarAsync("hw_version_major", cancellationToken);
-            var hwMinor = await session.ReadScalarAsync("hw_version_minor", cancellationToken);
-            var hwVariant = await session.ReadScalarAsync("hw_version_variant", cancellationToken);
+            var device = session.Info;
+            var serial = device.SerialNumber.Split(':', 2).LastOrDefault();
 
             if (string.IsNullOrWhiteSpace(serial) || serial.Contains("invalid", StringComparison.OrdinalIgnoreCase))
             {
                 return null;
             }
 
-            return new DeviceInfo(
-                SerialNumber: $"{portName}:{serial}",
-                DisplayName: $"ODrive {serial} ({portName})",
-                FirmwareVersion: $"{fwMajor}.{fwMinor}.{fwRevision}",
-                HardwareVersion: $"{hwMajor}.{hwMinor}.{hwVariant}",
-                DriverName: "ODrive ASCII Serial Driver",
-                IsMock: false);
+            return device;
         }
         catch
         {
@@ -71,16 +76,11 @@ public sealed class SerialAsciiOdriveDriver : IDeviceDriver
     {
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var ordered = new List<string>();
+        var portSources = OperatingSystem.IsMacOS()
+            ? GetMacOSSerialPorts()
+            : GetWindowsOdrivePorts().Concat(SerialPort.GetPortNames().Order(StringComparer.OrdinalIgnoreCase));
 
-        foreach (var portName in GetWindowsOdrivePorts())
-        {
-            if (seen.Add(portName))
-            {
-                ordered.Add(portName);
-            }
-        }
-
-        foreach (var portName in SerialPort.GetPortNames().Order(StringComparer.OrdinalIgnoreCase))
+        foreach (var portName in portSources)
         {
             if (seen.Add(portName))
             {
@@ -89,6 +89,40 @@ public sealed class SerialAsciiOdriveDriver : IDeviceDriver
         }
 
         return ordered;
+    }
+
+    private static IEnumerable<string> GetMacOSSerialPorts()
+    {
+        if (!OperatingSystem.IsMacOS())
+        {
+            yield break;
+        }
+
+        string[] portNames;
+        try
+        {
+            portNames =
+            [
+                .. Directory.EnumerateFiles("/dev", "cu.usb*"),
+                .. Directory.EnumerateFiles("/dev", "cu.SLAB_USBtoUART*"),
+                .. Directory.EnumerateFiles("/dev", "cu.wchusbserial*")
+            ];
+        }
+        catch (IOException)
+        {
+            yield break;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            yield break;
+        }
+
+        foreach (var portName in portNames
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Order(StringComparer.OrdinalIgnoreCase))
+        {
+            yield return portName;
+        }
     }
 
     private static IEnumerable<string> GetWindowsOdrivePorts()
