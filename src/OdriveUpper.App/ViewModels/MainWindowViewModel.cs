@@ -255,6 +255,34 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private double _velIntegratorGain = 0.001;
 
+    // --- Motor Parameters ---
+    [ObservableProperty]
+    private int _motorType = 0; // 0: High Current, 2: Gimbal, 3: ACIM
+
+    [ObservableProperty]
+    private int _polePairs = 7;
+
+    [ObservableProperty]
+    private double _torqueConstant = 0.04;
+
+    [ObservableProperty]
+    private double _currentLim = 10.0;
+
+    [ObservableProperty]
+    private double _calibrationCurrent = 10.0;
+
+    [ObservableProperty]
+    private double _resistanceCalibMaxVoltage = 2.0;
+
+    [ObservableProperty]
+    private double _phaseResistance = 0.0;
+
+    [ObservableProperty]
+    private double _phaseInductance = 0.0;
+
+    [ObservableProperty]
+    private bool _isMotorPreCalibrated = false;
+
     // --- Encoder Status ---
     [ObservableProperty]
     private string _encoderWarning = "无报警";
@@ -369,6 +397,84 @@ public partial class MainWindowViewModel : ViewModelBase
         if (await InvokeCommandAsync("clear_errors", "清除设备错误"))
         {
             await RefreshSelectedAxisStatusAsync();
+        }
+    }
+
+    [RelayCommand]
+    public async Task ReadMotorParametersAsync()
+    {
+        if (_session is null)
+        {
+            LastCommandResult = "设备未连接，无法读取电机参数";
+            return;
+        }
+
+        LastCommandResult = "正在读取电机参数...";
+        var res = await _session.ReadAsync([
+            "axis0.motor.config.motor_type",
+            "axis0.motor.config.pole_pairs",
+            "axis0.motor.config.torque_constant",
+            "axis0.motor.config.current_lim",
+            "axis0.motor.config.calibration_current",
+            "axis0.motor.config.resistance_calib_max_voltage",
+            "axis0.motor.config.phase_resistance",
+            "axis0.motor.config.phase_inductance",
+            "axis0.motor.config.pre_calibrated"
+        ], CancellationToken.None);
+
+        if (res.Values.TryGetValue("axis0.motor.config.motor_type", out var motorType))
+            MotorType = Convert.ToInt32(motorType);
+        if (res.Values.TryGetValue("axis0.motor.config.pole_pairs", out var polePairs))
+            PolePairs = Convert.ToInt32(polePairs);
+        if (res.Values.TryGetValue("axis0.motor.config.torque_constant", out var torqueConstant))
+            TorqueConstant = ToDouble(torqueConstant);
+        if (res.Values.TryGetValue("axis0.motor.config.current_lim", out var currentLim))
+            CurrentLim = ToDouble(currentLim);
+        if (res.Values.TryGetValue("axis0.motor.config.calibration_current", out var calibCurrent))
+            CalibrationCurrent = ToDouble(calibCurrent);
+        if (res.Values.TryGetValue("axis0.motor.config.resistance_calib_max_voltage", out var calibVoltage))
+            ResistanceCalibMaxVoltage = ToDouble(calibVoltage);
+        if (res.Values.TryGetValue("axis0.motor.config.phase_resistance", out var phaseRes))
+            PhaseResistance = ToDouble(phaseRes);
+        if (res.Values.TryGetValue("axis0.motor.config.phase_inductance", out var phaseInd))
+            PhaseInductance = ToDouble(phaseInd);
+        if (res.Values.TryGetValue("axis0.motor.config.pre_calibrated", out var preCalib))
+            IsMotorPreCalibrated = preCalib is bool b ? b : (Convert.ToInt32(preCalib) != 0);
+
+        LastCommandResult = "电机参数读取成功";
+    }
+
+    [RelayCommand]
+    public async Task WriteMotorParametersAsync()
+    {
+        if (_session is null)
+        {
+            LastCommandResult = "设备未连接，无法写入电机参数";
+            return;
+        }
+
+        LastCommandResult = "正在写入电机参数...";
+        var writes = new List<PropertyWrite>
+        {
+            new("axis0.motor.config.motor_type", MotorType),
+            new("axis0.motor.config.pole_pairs", PolePairs),
+            new("axis0.motor.config.torque_constant", TorqueConstant),
+            new("axis0.motor.config.current_lim", CurrentLim),
+            new("axis0.motor.config.calibration_current", CalibrationCurrent),
+            new("axis0.motor.config.resistance_calib_max_voltage", ResistanceCalibMaxVoltage),
+            new("axis0.motor.config.pre_calibrated", IsMotorPreCalibrated)
+        };
+
+        var results = await _session.WriteAsync(writes, CancellationToken.None);
+        var failed = results.Where(r => !r.Success).ToArray();
+        if (failed.Length == 0)
+        {
+            LastCommandResult = "电机参数全部写入成功";
+            await ReadMotorParametersAsync(); // Refresh
+        }
+        else
+        {
+            LastCommandResult = $"电机参数写入部分失败：{string.Join(", ", failed.Select(f => $"{f.Path}:{f.Error}"))}";
         }
     }
 
@@ -516,7 +622,8 @@ public partial class MainWindowViewModel : ViewModelBase
             BuildParameterTree(_schema);
 
             ConnectionStatus = $"已连接：{_session.Info.DisplayName}";
-            StartTelemetry(_session, connected.capabilities);
+StartTelemetry(_session, connected.capabilities);
+            _ = ReadMotorParametersAsync();
         }
         catch (Exception ex)
         {
@@ -552,6 +659,40 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         var node = SelectedParameterNode;
+        node.Status = "正在写入...";
+        var converted = ConvertPendingValue(node.PendingValue, node.ValueType);
+        var results = await _session.WriteAsync([new PropertyWrite(node.Path, converted)], CancellationToken.None);
+        var result = results.FirstOrDefault();
+        if (result is { Success: true })
+        {
+            node.Status = "写入成功，正在回读...";
+            await ReadParameterAsync(node);
+        }
+        else
+        {
+            node.Status = $"写入失败：{result?.Error ?? "未知错误"}";
+        }
+    }
+
+    [RelayCommand]
+    private async Task ReadNodeAsync(ParameterNodeViewModel? node)
+    {
+        if (node is null || _session is null)
+        {
+            return;
+        }
+
+        await ReadParameterAsync(node);
+    }
+
+    [RelayCommand]
+    private async Task WriteNodeAsync(ParameterNodeViewModel? node)
+    {
+        if (node is null || _session is null || node.Property is null)
+        {
+            return;
+        }
+
         node.Status = "正在写入...";
         var converted = ConvertPendingValue(node.PendingValue, node.ValueType);
         var results = await _session.WriteAsync([new PropertyWrite(node.Path, converted)], CancellationToken.None);

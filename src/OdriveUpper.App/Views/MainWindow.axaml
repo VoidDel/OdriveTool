@@ -187,7 +187,7 @@
             <Setter Property="Padding" Value="16"/>
             <Setter Property="Margin" Value="6"/>
         </Style>
-        
+
         <!-- Typography -->
         <Style Selector="TextBlock.card-title">
             <Setter Property="Foreground" Value="{DynamicResource TextSecondary}"/>
@@ -314,19 +314,19 @@
 
         <Grid ColumnDefinitions="260,*" Background="Transparent">
         <!-- LEFT SIDEBAR -->
-        <Border Grid.Column="0" 
-                Background="{DynamicResource SidebarBackground}" 
-                BorderBrush="{DynamicResource BorderBrush}" 
-                BorderThickness="0,0,1,0" 
+        <Border Grid.Column="0"
+                Background="{DynamicResource SidebarBackground}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="0,0,1,0"
                 Padding="16,40,16,16">
             <Grid RowDefinitions="Auto,Auto,*,Auto">
                 <!-- App Logo & Title -->
                 <StackPanel Grid.Row="0" Margin="0,10,0,24" Spacing="8" Orientation="Horizontal" VerticalAlignment="Center" Background="Transparent" PointerPressed="Header_PointerPressed">
                     <Ellipse Width="12" Height="12" Fill="{DynamicResource AccentColor}" VerticalAlignment="Center"/>
-                    <TextBlock Text="ODrive Control" 
-                               Foreground="{DynamicResource TextPrimary}" 
-                               FontSize="18" 
-                               FontWeight="Bold" 
+                    <TextBlock Text="ODrive Control"
+                               Foreground="{DynamicResource TextPrimary}"
+                               FontSize="18"
+                               FontWeight="Bold"
                                VerticalAlignment="Center"/>
                     <Border CornerRadius="4" Background="{DynamicResource ControlBackground}" Padding="4,2" Margin="4,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="v2.0" FontSize="10" Foreground="{DynamicResource TextSecondary}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -355,7 +355,7 @@
                 <!-- Navigation Menu -->
                 <StackPanel Grid.Row="2" Spacing="4">
                     <TextBlock Text="导航菜单" Classes="sidebar-title" Margin="0,0,0,8"/>
-                    
+
                     <Button Classes="nav" Classes.active="{Binding IsDashboardActive}" Command="{Binding SetTabCommand}" CommandParameter="Dashboard">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <PathIcon Data="{Binding IconDashboard}" Width="14" Height="14" VerticalAlignment="Center"/>
@@ -374,6 +374,13 @@
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <PathIcon Data="{Binding IconMotor}" Width="14" Height="14" VerticalAlignment="Center"/>
                             <TextBlock Text="电机与标定" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Classes="nav" Classes.active="{Binding IsMotorActive}" Command="{Binding SetTabCommand}" CommandParameter="Motor">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="🔧" VerticalAlignment="Center"/>
+                            <TextBlock Text="电机参数配置" VerticalAlignment="Center" FontWeight="Medium"/>
                         </StackPanel>
                     </Button>
 
@@ -410,7 +417,7 @@
                             </StackPanel>
 
                             <!-- Right: Clean Theme Toggle Button (Icon-Only) -->
-                            <Button Grid.Column="1" Command="{Binding ToggleThemeCommand}" 
+                            <Button Grid.Column="1" Command="{Binding ToggleThemeCommand}"
                                     Width="32" Height="32" CornerRadius="16" Padding="0"
                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                                     ToolTip.Tip="切换主题">
@@ -428,9 +435,9 @@
             <!-- HEADER -->
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto" VerticalAlignment="Bottom" Margin="0,0,0,10" Background="Transparent" PointerPressed="Header_PointerPressed">
                 <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding SelectedTabTitle}" 
-                               Foreground="{DynamicResource TextPrimary}" 
-                               FontSize="22" 
+                    <TextBlock Text="{Binding SelectedTabTitle}"
+                               Foreground="{DynamicResource TextPrimary}"
+                               FontSize="22"
                                FontWeight="Bold"/>
                     <Border CornerRadius="10" Background="{DynamicResource ControlBackground}" Padding="8,3" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Spacing="6">
@@ -447,11 +454,11 @@
             </Grid>
 
             <!-- MAIN PANELS -->
-            <Border Grid.Row="1" 
-                    Background="{DynamicResource PanelBackground}" 
-                    BorderBrush="{DynamicResource BorderBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="12" 
+            <Border Grid.Row="1"
+                    Background="{DynamicResource PanelBackground}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="12"
                     Padding="16">
                 <Grid>
                     <!-- ======================================= -->
@@ -460,7 +467,7 @@
                     <ScrollViewer IsVisible="{Binding IsDashboardActive}">
                         <StackPanel Spacing="16">
                             <TextBlock Text="系统关键状态指标" Classes="section-title"/>
-                            
+
                             <!-- Card Grid -->
                             <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
                                 <Border Grid.Row="0" Grid.Column="0" Classes="card">
@@ -514,7 +521,7 @@
                                         <TextBlock Grid.Column="1" Text="当前反馈值" FontStyle="Italic" FontSize="11" Foreground="{DynamicResource TextSecondary}" HorizontalAlignment="Right"/>
                                     </Grid>
                                     <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Margin="0,0,0,6"/>
-                                    
+
                                     <ItemsControl ItemsSource="{Binding TelemetryValues}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -641,103 +648,112 @@
                     </ScrollViewer>
 
                     <!-- ======================================= -->
-                    <!-- 3. MOTOR PANEL -->
+                    <!-- 2.5. MOTOR PARAMETERS PANEL -->
                     <!-- ======================================= -->
                     <ScrollViewer IsVisible="{Binding IsMotorActive}">
                         <StackPanel Spacing="16">
-                            <TextBlock Text="电机状态、调参与标定" Classes="section-title"/>
+                            <TextBlock Text="电机参数配置与标定" Classes="section-title"/>
 
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
-                                <StackPanel Grid.Column="0" Spacing="16">
-                                    <Border Classes="card">
-                                        <StackPanel Spacing="10">
-                                            <TextBlock Text="Motor Runtime" Classes="card-header"/>
-                                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
-                                            <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-                                                <TextBlock Text="Motor Error" Foreground="{DynamicResource TextSecondary}"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding MotorErrorText}" Foreground="{DynamicResource StatusWarning}" FontFamily="Consolas"/>
-                                            </Grid>
-                                            <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-                                                <TextBlock Text="Armed" Foreground="{DynamicResource TextSecondary}"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding MotorArmedText}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas"/>
-                                            </Grid>
-                                            <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-                                                <TextBlock Text="Calibration" Foreground="{DynamicResource TextSecondary}"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding MotorCalibratedText}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas"/>
-                                            </Grid>
-                                            <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-                                                <TextBlock Text="Iq Measured" Foreground="{DynamicResource TextSecondary}"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding IqMeasuredText}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" FontWeight="SemiBold"/>
-                                            </Grid>
-                                            <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-                                                <TextBlock Text="Iq Setpoint" Foreground="{DynamicResource TextSecondary}"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding IqSetpointText}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" FontWeight="SemiBold"/>
-                                            </Grid>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                                        <Border Grid.Column="0" Classes="card">
-                                            <StackPanel>
-                                                <TextBlock Text="电机温度" Classes="card-title"/>
-                                                <TextBlock Text="{Binding MotorTemperatureText}" Classes="card-value"/>
-                                            </StackPanel>
-                                        </Border>
-                                        <Border Grid.Column="1" Classes="card">
-                                            <StackPanel>
-                                                <TextBlock Text="FET 温度" Classes="card-title"/>
-                                                <TextBlock Text="{Binding FetTemperatureText}" Classes="card-value"/>
-                                            </StackPanel>
-                                        </Border>
-                                    </Grid>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="1" Spacing="16">
+                            <Grid ColumnDefinitions="*,*">
+                                <!-- Left Column: Settings -->
+                                <StackPanel Grid.Column="0" Spacing="16" Margin="0,0,12,0">
                                     <Border Classes="card">
                                         <StackPanel Spacing="14">
-                                            <TextBlock Text="PID / Control Loop Tuning" Classes="card-header"/>
+                                            <TextBlock Text="基础电机规格" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
                                             <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
 
                                             <StackPanel Spacing="6">
-                                                <Grid ColumnDefinitions="*,Auto">
-                                                    <TextBlock Text="位置环比例增益 (pos_gain)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding PosGain}" Foreground="{DynamicResource TextPrimary}" FontWeight="Bold"/>
-                                                </Grid>
-                                                <NumericUpDown Value="{Binding PosGain}" Minimum="0" Maximum="100" Increment="1"/>
+                                                <TextBlock Text="电机类型 (motor_type)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <ComboBox HorizontalAlignment="Stretch" SelectedIndex="{Binding MotorType, Mode=TwoWay}" Background="{DynamicResource InputBackground}">
+                                                    <ComboBoxItem Content="大电流电机 (High Current)"/>
+                                                    <ComboBoxItem Content="未使用 (Reserved)"/>
+                                                    <ComboBoxItem Content="云台电机 (Gimbal)"/>
+                                                    <ComboBoxItem Content="感应电机 (ACIM)"/>
+                                                </ComboBox>
                                             </StackPanel>
 
                                             <StackPanel Spacing="6">
-                                                <Grid ColumnDefinitions="*,Auto">
-                                                    <TextBlock Text="速度环比例增益 (vel_gain)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding VelGain, StringFormat={}{0:F6}}" Foreground="{DynamicResource TextPrimary}" FontWeight="Bold"/>
-                                                </Grid>
-                                                <NumericUpDown Value="{Binding VelGain}" Minimum="0" Maximum="0.1" Increment="0.0001" FormatString="0.######"/>
+                                                <TextBlock Text="极对数 (pole_pairs)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <NumericUpDown Value="{Binding PolePairs}" Minimum="1" Maximum="100" Increment="1"/>
                                             </StackPanel>
 
                                             <StackPanel Spacing="6">
-                                                <Grid ColumnDefinitions="*,Auto">
-                                                    <TextBlock Text="速度积分增益 (vel_integrator_gain)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding VelIntegratorGain, StringFormat={}{0:F6}}" Foreground="{DynamicResource TextPrimary}" FontWeight="Bold"/>
-                                                </Grid>
-                                                <NumericUpDown Value="{Binding VelIntegratorGain}" Minimum="0" Maximum="0.1" Increment="0.0001" FormatString="0.######"/>
+                                                <TextBlock Text="力矩常数 (torque_constant, Nm/A)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <NumericUpDown Value="{Binding TorqueConstant}" Minimum="0" Maximum="10" Increment="0.001" FormatString="0.####"/>
                                             </StackPanel>
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Classes="card" Background="{DynamicResource SidebarBackground}">
-                                        <StackPanel Spacing="10">
-                                            <TextBlock Text="电机标定与保存" Classes="card-header"/>
-                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                                                <Button Grid.Column="0" Content="执行电机标定" Command="{Binding CalibrateMotorCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
-                                                <Button Grid.Column="1" Content="保存配置" Command="{Binding SaveConfigurationCommand}" Classes="warning" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                    <Border Classes="card">
+                                        <StackPanel Spacing="14">
+                                            <TextBlock Text="标定与电流限制" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
+
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="工作电流限制 (current_lim, A)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <NumericUpDown Value="{Binding CurrentLim}" Minimum="0" Maximum="120" Increment="0.5" FormatString="0.0"/>
+                                            </StackPanel>
+
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="标定电流 (calibration_current, A)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <NumericUpDown Value="{Binding CalibrationCurrent}" Minimum="0" Maximum="60" Increment="0.5" FormatString="0.0"/>
+                                            </StackPanel>
+
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="电阻标定电压限制 (resistance_calib_max_voltage, V)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <NumericUpDown Value="{Binding ResistanceCalibMaxVoltage}" Minimum="0" Maximum="56" Increment="0.1" FormatString="0.0"/>
+                                            </StackPanel>
+
+                                            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center" Margin="0,4">
+                                                <TextBlock Text="电机已预标定 (pre_calibrated)" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center"/>
+                                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsMotorPreCalibrated}" OnContent="" OffContent="" VerticalAlignment="Center"/>
                                             </Grid>
                                         </StackPanel>
                                     </Border>
+                                </StackPanel>
 
-                                    <Border Classes="card" Height="96">
-                                        <ScrollViewer>
-                                            <TextBlock Text="{Binding LastCommandResult}" Foreground="{DynamicResource TextSecondary}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap"/>
-                                        </ScrollViewer>
+                                <!-- Right Column: Measured parameters & commands -->
+                                <StackPanel Grid.Column="1" Spacing="16" Margin="12,0,0,0">
+                                    <Border Classes="card">
+                                        <StackPanel Spacing="14">
+                                            <TextBlock Text="实测物理参数 (标定获取)" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
+
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="相电阻 (phase_resistance, Ohm)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <TextBox Text="{Binding PhaseResistance, StringFormat={}{0:F6}}" IsReadOnly="True" Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}"/>
+                                            </StackPanel>
+
+                                            <StackPanel Spacing="6">
+                                                <TextBlock Text="相电感 (phase_inductance, Henry)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <TextBox Text="{Binding PhaseInductance, StringFormat={}{0:E5}}" IsReadOnly="True" Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}"/>
+                                            </StackPanel>
+
+                                            <TextBlock Text="注意：相电阻和相电感是执行「电机标定」后由控制器自动测量并填入的物理特性。为了避免每次重新上电都重新标定，请在标定成功后将「电机已预标定」开关开启，并点击「保存配置至闪存」。"
+                                                       Foreground="{DynamicResource TextMuted}" FontSize="11" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Classes="card">
+                                        <StackPanel Spacing="10">
+                                            <TextBlock Text="电机参数操作" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold"/>
+                                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
+
+                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,4">
+                                                <Button Grid.Column="0" Content="读取参数" Command="{Binding ReadMotorParametersCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                                <Button Grid.Column="1" Content="写入参数" Command="{Binding WriteMotorParametersCommand}" Classes="primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                            </Grid>
+
+                                            <Button Content="执行电机标定 (Calibrate)" Command="{Binding CalibrateMotorCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                            <Button Content="保存配置至闪存 (Save Config)" Command="{Binding SaveConfigurationCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Classes="card" Height="100">
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="诊断与反馈控制台" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                            <TextBlock Text="{Binding LastCommandResult}" Foreground="{DynamicResource StatusOk}" FontFamily="Consolas" FontSize="12" TextWrapping="Wrap"/>
+                                        </StackPanel>
                                     </Border>
                                 </StackPanel>
                             </Grid>
@@ -745,7 +761,7 @@
                     </ScrollViewer>
 
                     <!-- ======================================= -->
-                    <!-- 4. ENCODER PANEL -->
+<!-- 4. ENCODER PANEL -->
                     <!-- ======================================= -->
                     <ScrollViewer IsVisible="{Binding IsEncoderActive}">
                         <StackPanel Spacing="16">
@@ -881,18 +897,18 @@
                         <!-- Navigation Controls Bar (Between Navigation and Step) -->
                         <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" Height="40" Margin="6,0">
                             <!-- Back Button -->
-                            <Button Grid.Column="0" Command="{Binding SetupWizard.BackCommand}" 
+                            <Button Grid.Column="0" Command="{Binding SetupWizard.BackCommand}"
                                     Width="46" Height="30" CornerRadius="6" Padding="0"
                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                                     ToolTip.Tip="上一步">
                                 <PathIcon Width="12" Height="12" Data="{Binding IconChevronLeft}"/>
                             </Button>
-                            
+
                             <!-- Status Text -->
                             <TextBlock Grid.Column="1" Text="{Binding SetupWizard.StatusText}" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="13"/>
-                            
+
                             <!-- Next Button -->
-                            <Button Grid.Column="2" Command="{Binding SetupWizard.NextCommand}" IsVisible="{Binding SetupWizard.IsNotReviewStep}" 
+                            <Button Grid.Column="2" Command="{Binding SetupWizard.NextCommand}" IsVisible="{Binding SetupWizard.IsNotReviewStep}"
                                     Classes="primary" Width="46" Height="30" CornerRadius="6" Padding="0"
                                     HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                                     ToolTip.Tip="下一步">
@@ -929,7 +945,7 @@
                                                             <Grid RowDefinitions="Auto,*" Margin="2">
                                                                 <!-- Selected Indicator -->
                                                                 <PathIcon Grid.Row="0" Width="10" Height="10" Data="M 13.5 4.5 L 6.5 11.5 L 2.5 7.5 L 4 6 L 6.5 8.5 L 12 3 Z" Foreground="{DynamicResource AccentColor}" HorizontalAlignment="Right" VerticalAlignment="Top" IsVisible="{Binding IsSelected}"/>
-                                                                
+
                                                                 <!-- Text content -->
                                                                 <StackPanel Grid.Row="1" Spacing="4" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4,4,4,0">
                                                                     <TextBlock Text="{Binding Title}" Foreground="{DynamicResource TextPrimary}" FontSize="13" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
@@ -1023,14 +1039,10 @@
                     <!-- ======================================= -->
                     <!-- 6. SYSTEM PANEL -->
                     <!-- ======================================= -->
-                    <ScrollViewer IsVisible="{Binding IsSystemActive}">
-                        <StackPanel Spacing="16">
-                            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center" Margin="0,0,0,12">
-                                <TextBlock Grid.Column="0" Text="ODrive 自定义固件接口规范 (Schema)" Classes="section-title" VerticalAlignment="Center" Margin="0"/>
-                                <Button Grid.Column="1" Content="保存配置至闪存" Command="{Binding SaveConfigurationCommand}" Classes="warning" Padding="14,6" FontSize="12" VerticalAlignment="Center"/>
-                            </Grid>
-                            
-                            <Grid ColumnDefinitions="*,360" ColumnSpacing="16">
+                    <Grid IsVisible="{Binding IsSystemActive}" RowDefinitions="Auto,*" RowSpacing="12">
+                        <TextBlock Grid.Row="0" Text="ODrive 自定义固件接口规范 (Schema)" Classes="section-title" Margin="6,0,6,0"/>
+
+                        <Grid Grid.Row="1" ColumnDefinitions="1.2*,*" ColumnSpacing="16">
                                     <Border Grid.Column="0" Classes="card">
                                         <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="10">
                                             <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
@@ -1050,12 +1062,66 @@
                                             <TreeView Grid.Row="3"
                                                       ItemsSource="{Binding ParameterTree}"
                                                       SelectedItem="{Binding SelectedParameterNode, Mode=TwoWay}"
-                                                      Height="480">
+                                                      Background="{DynamicResource SidebarBackground}"
+                                                      BorderBrush="{DynamicResource BorderBrush}"
+                                                      BorderThickness="1">
+                                                <TreeView.Styles>
+                                                    <Style Selector="TreeViewItem">
+                                                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                                                    </Style>
+                                                </TreeView.Styles>
                                                 <TreeView.ItemTemplate>
                                                     <TreeDataTemplate ItemsSource="{Binding Children}">
                                                         <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-                                                            <TextBlock Grid.Column="0" Text="{Binding Name}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas"/>
-                                                            <TextBlock Grid.Column="1" Text="{Binding CurrentValue}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" Margin="10,0,0,0"/>
+                                                            <!-- Left: Name & Path description -->
+                                                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="{Binding Unit}" Foreground="{DynamicResource TextMuted}" FontSize="11" VerticalAlignment="Center" IsVisible="{Binding IsParameter}"/>
+                                                            </StackPanel>
+
+                                                            <!-- Right: Value & Controls -->
+                                                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                                                <!-- Static display (when NOT selected or NOT a parameter) -->
+                                                                <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding !IsSelected}">
+                                                                    <TextBlock Text="{Binding CurrentValue}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                                </StackPanel>
+
+                                                                <!-- Inline controls (when SELECTED and IS a parameter) -->
+                                                                <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding IsSelected}">
+                                                                    <!-- Read/Write controls if it is a parameter -->
+                                                                    <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding IsParameter}">
+                                                                        <!-- Status info -->
+                                                                        <TextBlock Text="{Binding Status}" Foreground="{DynamicResource TextSecondary}" FontSize="10" VerticalAlignment="Center" Margin="0,0,4,0"/>
+
+                                                                        <!-- TextBox for PendingValue (only if writable) -->
+                                                                        <TextBox Width="100" Height="26" Padding="6,2" FontSize="11"
+                                                                                 Text="{Binding PendingValue, Mode=TwoWay}"
+                                                                                 PlaceholderText="输入新值"
+                                                                                 IsVisible="{Binding IsWritable}"
+                                                                                 VerticalContentAlignment="Center"
+                                                                                 Background="{DynamicResource InputBackground}"
+                                                                                 BorderBrush="{DynamicResource BorderBrush}"/>
+
+                                                                        <!-- Read button -->
+                                                                        <Button Content="读取"
+                                                                                Command="{Binding $parent[TreeView].((vm:MainWindowViewModel)DataContext).ReadNodeCommand}"
+                                                                                CommandParameter="{Binding}"
+                                                                                Padding="8,2" Height="26" FontSize="11"
+                                                                                VerticalContentAlignment="Center"/>
+
+                                                                        <!-- Write button -->
+                                                                        <Button Content="写入" Classes="primary"
+                                                                                Command="{Binding $parent[TreeView].((vm:MainWindowViewModel)DataContext).WriteNodeCommand}"
+                                                                                CommandParameter="{Binding}"
+                                                                                IsVisible="{Binding IsWritable}"
+                                                                                Padding="8,2" Height="26" FontSize="11"
+                                                                                VerticalContentAlignment="Center"/>
+                                                                    </StackPanel>
+
+                                                                    <!-- Default value display for category/selected folders -->
+                                                                    <TextBlock Text="{Binding CurrentValue}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" FontWeight="SemiBold" VerticalAlignment="Center" IsVisible="{Binding !IsParameter}"/>
+                                                                </StackPanel>
+                                                            </StackPanel>
                                                         </Grid>
                                                     </TreeDataTemplate>
                                                 </TreeView.ItemTemplate>
@@ -1067,7 +1133,7 @@
                                         <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="8">
                                             <TextBlock Grid.Row="0" Text="参数详情" Classes="card-header"/>
                                             <TextBlock Grid.Row="1" Text="{Binding SelectedParameterNode.Path}" Foreground="{DynamicResource TextSecondary}" FontFamily="Consolas" TextWrapping="Wrap"/>
-                                            
+
                                             <!-- Property Details List to prevent text overflow -->
                                             <StackPanel Grid.Row="2" Spacing="6" Margin="0,4">
                                                 <Grid ColumnDefinitions="80,*">
@@ -1099,8 +1165,7 @@
                                         </Grid>
                                     </Border>
                                 </Grid>
-                        </StackPanel>
-                    </ScrollViewer>
+                    </Grid>
                 </Grid>
             </Border>
         </Grid>

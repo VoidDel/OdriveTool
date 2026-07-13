@@ -41,6 +41,9 @@ public sealed partial class ParameterNodeViewModel : ObservableObject
     [ObservableProperty]
     private string _status = "未读取";
 
+    [ObservableProperty]
+    private bool _isSelected;
+
     public void AttachProperty(ApiProperty property)
     {
         Property = property;

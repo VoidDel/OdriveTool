@@ -171,12 +171,29 @@ public sealed class SerialAsciiOdriveSession : IDeviceSession
 
     public async Task<CommandResult> InvokeAsync(string path, IReadOnlyList<object?> args, CancellationToken cancellationToken)
     {
+        if (path == "axis0.run_motor_calibration")
+        {
+            // Triggers motor calibration sequence by writing to axis0.requested_state (MOTOR_CALIBRATION = 4)
+            var response = await ExecuteAsciiAsync("w axis0.requested_state 4", cancellationToken);
+            return IsErrorResponse(response)
+                ? new CommandResult(false, Error: response)
+                : new CommandResult(true, string.IsNullOrWhiteSpace(response) ? "OK" : response);
+        }
+
+        if (path == "axis0.tamagawa.clear_alarm")
+        {
+            // Clear encoder alarms using standard system error clearing
+            var response = await ExecuteAsciiAsync("sc", cancellationToken);
+            return IsErrorResponse(response)
+                ? new CommandResult(false, Error: response)
+                : new CommandResult(true, string.IsNullOrWhiteSpace(response) ? "OK" : response);
+        }
+
         var command = path switch
         {
             "save_configuration" => "ss",
             "clear_errors" => "sc",
             "reboot" => "sr",
-            _ when path.StartsWith("axis0.tamagawa.", StringComparison.OrdinalIgnoreCase) => null,
             _ => null
         };
 
@@ -185,10 +202,10 @@ public sealed class SerialAsciiOdriveSession : IDeviceSession
             return new CommandResult(false, Error: $"ASCII serial driver cannot invoke '{path}'. Expose it through ASCII or use a Fibre/native driver.");
         }
 
-        var response = await ExecuteAsciiAsync(command, cancellationToken);
-        return IsErrorResponse(response)
-            ? new CommandResult(false, Error: response)
-            : new CommandResult(true, string.IsNullOrWhiteSpace(response) ? "OK" : response);
+        var responseStr = await ExecuteAsciiAsync(command, cancellationToken);
+        return IsErrorResponse(responseStr)
+            ? new CommandResult(false, Error: responseStr)
+            : new CommandResult(true, string.IsNullOrWhiteSpace(responseStr) ? "OK" : responseStr);
     }
 
     public async IAsyncEnumerable<TelemetryFrame> SubscribeTelemetryAsync(
