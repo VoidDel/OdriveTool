@@ -27,6 +27,8 @@
                     <SolidColorBrush x:Key="TextMuted">#94A3B8</SolidColorBrush>
                     <SolidColorBrush x:Key="AccentColor">#0EA5E9</SolidColorBrush>
                     <SolidColorBrush x:Key="AccentHoverColor">#0284C7</SolidColorBrush>
+                    <SolidColorBrush x:Key="ChartAxis0Color">#0369A1</SolidColorBrush>
+                    <SolidColorBrush x:Key="ChartAxis1Color">#B45309</SolidColorBrush>
                     <SolidColorBrush x:Key="StatusOk">#10B981</SolidColorBrush>
                     <SolidColorBrush x:Key="StatusWarning">#F59E0B</SolidColorBrush>
                     <SolidColorBrush x:Key="StatusError">#EF4444</SolidColorBrush>
@@ -45,6 +47,8 @@
                     <SolidColorBrush x:Key="TextMuted">#475569</SolidColorBrush>
                     <SolidColorBrush x:Key="AccentColor">#38BDF8</SolidColorBrush>
                     <SolidColorBrush x:Key="AccentHoverColor">#7DD3FC</SolidColorBrush>
+                    <SolidColorBrush x:Key="ChartAxis0Color">#0284C7</SolidColorBrush>
+                    <SolidColorBrush x:Key="ChartAxis1Color">#C2410C</SolidColorBrush>
                     <SolidColorBrush x:Key="StatusOk">#34D399</SolidColorBrush>
                     <SolidColorBrush x:Key="StatusWarning">#FBBF24</SolidColorBrush>
                     <SolidColorBrush x:Key="StatusError">#F87171</SolidColorBrush>

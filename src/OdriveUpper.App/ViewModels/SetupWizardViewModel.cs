@@ -172,9 +172,9 @@ public sealed partial class SetupWizardViewModel : ObservableObject
     [RelayCommand]
     private async Task SaveConfigurationAsync()
     {
-        StatusText = "正在保存配置至闪存...";
+        StatusText = "正在打开保存确认窗口...";
         await _saveAsync();
-        StatusText = "保存命令已发送。";
+        StatusText = "请在保存确认窗口中确认待保存参数。";
     }
 
     [RelayCommand]

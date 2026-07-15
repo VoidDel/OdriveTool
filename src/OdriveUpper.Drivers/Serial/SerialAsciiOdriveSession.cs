@@ -17,7 +17,9 @@ public sealed class SerialAsciiOdriveSession : IDeviceSession
         "axis0.current_state",
         "axis0.encoder.pos_estimate",
         "axis0.encoder.vel_estimate",
-        "axis0.motor.current_control.iq_measured",
+        "ibus",
+        "axis0.motor.I_bus",
+        "axis1.motor.I_bus",
         "axis0.controller.config.pos_gain",
         "axis0.controller.config.vel_gain",
         "axis0.controller.config.vel_integrator_gain",
@@ -264,6 +266,18 @@ public sealed class SerialAsciiOdriveSession : IDeviceSession
         catch (TimeoutException)
         {
             return string.Empty;
+        }
+        catch (IOException ex)
+        {
+            return $"error: serial connection unavailable ({ex.Message})";
+        }
+        catch (InvalidOperationException ex)
+        {
+            return $"error: serial connection unavailable ({ex.Message})";
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return $"error: serial connection unavailable ({ex.Message})";
         }
         finally
         {

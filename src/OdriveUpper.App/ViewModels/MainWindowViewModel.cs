@@ -20,6 +20,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private const int ControlModeTorque = 1;
     private const int ControlModeVelocity = 2;
     private const int ControlModePosition = 3;
+    private const int TelemetryHistoryCapacity = 120;
 
     private const string IconCircleHalf = "M 8 15 A 7 7 0 1 0 8 1 Z M 8 16 A 8 8 0 1 1 8 0 A 8 8 0 0 1 8 16 Z";
     private const string IconSun = "M 8 12 a 4 4 0 1 0 0 -8 a 4 4 0 0 0 0 8 M 8 0 a 0.5 0.5 0 0 1 0.5 0.5 v 2 a 0.5 0.5 0 0 1 -1 0 v -2 A 0.5 0.5 0 0 1 8 0 M 8 13 a 0.5 0.5 0 0 1 0.5 0.5 v 2 a 0.5 0.5 0 0 1 -1 0 v -2 A 0.5 0.5 0 0 1 8 13 M 16 8 a 0.5 0.5 0 0 1 -0.5 0.5 h -2 a 0.5 0.5 0 0 1 0 -1 h 2 a 0.5 0.5 0 0 1 0.5 0.5 M 3 8 a 0.5 0.5 0 0 1 -0.5 0.5 h -2 a 0.5 0.5 0 0 1 0 -1 h 2 A 0.5 0.5 0 0 1 3 8 M 13.657 2.343 a 0.5 0.5 0 0 1 0 0.707 l -1.414 1.415 a 0.5 0.5 0 1 1 -0.707 -0.708 l 1.414 -1.414 a 0.5 0.5 0 0 1 0.707 0 M 4.464 11.536 a 0.5 0.5 0 0 1 0 0.707 l -1.414 1.414 a 0.5 0.5 0 0 1 -0.707 -0.707 l 1.414 -1.414 a 0.5 0.5 0 0 1 0.707 0 M 13.657 13.657 a 0.5 0.5 0 0 1 -0.707 0 l -1.414 -1.414 a 0.5 0.5 0 0 1 0.707 -0.707 l 1.414 1.414 a 0.5 0.5 0 0 1 0 0.707 M 4.464 4.465 a 0.5 0.5 0 0 1 -0.707 0 l -1.414 -1.414 a 0.5 0.5 0 1 1 0.707 -0.707 l 1.414 1.414 a 0.5 0.5 0 0 1 0 0.708";
@@ -42,6 +43,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private CancellationTokenSource? _telemetryCts;
     private IDeviceSession? _session;
     private DeviceApiSchema? _schema;
+    private readonly Dictionary<string, PropertyWrite> _pendingConfigurationWrites = new(StringComparer.OrdinalIgnoreCase);
+    private bool _isLoadingBrakeResistorSettings;
 
     public MainWindowViewModel()
     {
@@ -63,9 +66,21 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public ObservableCollection<string> AvailableControlModes { get; } = ["位置控制", "速度控制", "力矩控制"];
 
-    public ObservableCollection<TelemetryValueViewModel> TelemetryValues { get; } = [];
+    public ObservableCollection<TelemetrySample> BusVoltageHistory { get; } = [];
+
+    public ObservableCollection<TelemetrySample> Axis0BusCurrentHistory { get; } = [];
+
+    public ObservableCollection<TelemetrySample> Axis1BusCurrentHistory { get; } = [];
 
     public ObservableCollection<ParameterNodeViewModel> ParameterTree { get; } = [];
+
+    public ObservableCollection<string> PendingConfigurationChanges { get; } = [];
+
+    [ObservableProperty]
+    private bool _isSaveConfirmationOpen;
+
+    [ObservableProperty]
+    private bool _isSavingConfiguration;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ReadSelectedParameterCommand))]
@@ -132,10 +147,22 @@ public partial class MainWindowViewModel : ViewModelBase
     private string _ibusText = "—";
 
     [ObservableProperty]
-    private string _iqMeasuredText = "—";
+    private string _busVoltageRangeText = "等待采样";
 
     [ObservableProperty]
-    private string _iqSetpointText = "—";
+    private string _axis0BusCurrentText = "—";
+
+    [ObservableProperty]
+    private string _axis1BusCurrentText = "—";
+
+    [ObservableProperty]
+    private string _axis0BusCurrentRangeText = "等待采样";
+
+    [ObservableProperty]
+    private string _axis1BusCurrentRangeText = "等待采样";
+
+    [ObservableProperty]
+    private string _selectedAxisBusCurrentText = "—";
 
     [ObservableProperty]
     private string _motorTemperatureText = "—";
@@ -255,6 +282,25 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private double _velIntegratorGain = 0.001;
 
+    // --- Brake Resistor Settings ---
+    [ObservableProperty]
+    private bool _brakeResistorEnabled;
+
+    [ObservableProperty]
+    private double _brakeResistance = 2.0;
+
+    [ObservableProperty]
+    private double _maxRegenCurrent;
+
+    [ObservableProperty]
+    private bool _dcBusOvervoltageRampEnabled;
+
+    [ObservableProperty]
+    private double _dcBusOvervoltageRampStart = 24.0;
+
+    [ObservableProperty]
+    private double _dcBusOvervoltageRampEnd = 26.0;
+
     // --- Encoder Status ---
     [ObservableProperty]
     private string _encoderWarning = "无报警";
@@ -306,6 +352,54 @@ public partial class MainWindowViewModel : ViewModelBase
     partial void OnVelGainChanged(double value) => _ = WriteSingleAsync(AxisPath("controller.config.vel_gain"), value);
 
     partial void OnVelIntegratorGainChanged(double value) => _ = WriteSingleAsync(AxisPath("controller.config.vel_integrator_gain"), value);
+
+    partial void OnBrakeResistorEnabledChanged(bool value)
+    {
+        if (!_isLoadingBrakeResistorSettings)
+        {
+            _ = WriteSingleAsync("config.enable_brake_resistor", value);
+        }
+    }
+
+    partial void OnBrakeResistanceChanged(double value)
+    {
+        if (!_isLoadingBrakeResistorSettings)
+        {
+            _ = WriteSingleAsync("config.brake_resistance", value);
+        }
+    }
+
+    partial void OnMaxRegenCurrentChanged(double value)
+    {
+        if (!_isLoadingBrakeResistorSettings)
+        {
+            _ = WriteSingleAsync("config.max_regen_current", value);
+        }
+    }
+
+    partial void OnDcBusOvervoltageRampEnabledChanged(bool value)
+    {
+        if (!_isLoadingBrakeResistorSettings)
+        {
+            _ = WriteSingleAsync("config.enable_dc_bus_overvoltage_ramp", value);
+        }
+    }
+
+    partial void OnDcBusOvervoltageRampStartChanged(double value)
+    {
+        if (!_isLoadingBrakeResistorSettings)
+        {
+            _ = WriteSingleAsync("config.dc_bus_overvoltage_ramp_start", value);
+        }
+    }
+
+    partial void OnDcBusOvervoltageRampEndChanged(double value)
+    {
+        if (!_isLoadingBrakeResistorSettings)
+        {
+            _ = WriteSingleAsync("config.dc_bus_overvoltage_ramp_end", value);
+        }
+    }
 
     [RelayCommand]
     private void ToggleTheme()
@@ -390,13 +484,59 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SaveConfigurationAsync()
+    private Task SaveConfigurationAsync()
     {
-        var writes = AvailableAxes
-            .Select(axis => new PropertyWrite($"axis{axis}.requested_state", AxisStateIdle))
-            .ToArray();
-        await WriteManyAsync(writes, "保存前切换所有轴到 Idle");
-        await InvokeCommandAsync("save_configuration", "保存配置至 ODrive 闪存");
+        if (_session is null)
+        {
+            LastCommandResult = "设备未连接";
+            return Task.CompletedTask;
+        }
+
+        IsSaveConfirmationOpen = true;
+        return Task.CompletedTask;
+    }
+
+    [RelayCommand]
+    private void CancelSaveConfiguration() => IsSaveConfirmationOpen = false;
+
+    [RelayCommand]
+    private async Task ConfirmSaveConfigurationAsync()
+    {
+        if (_session is null)
+        {
+            IsSaveConfirmationOpen = false;
+            LastCommandResult = "设备未连接";
+            return;
+        }
+
+        IsSavingConfiguration = true;
+        try
+        {
+            var pendingWrites = _pendingConfigurationWrites.Values.ToArray();
+            if (pendingWrites.Length > 0 && !await WriteManyAsync(pendingWrites, $"写入 {pendingWrites.Length} 项待保存配置"))
+            {
+                return;
+            }
+
+            var idleWrites = AvailableAxes
+                .Select(axis => new PropertyWrite($"axis{axis}.requested_state", AxisStateIdle))
+                .ToArray();
+            if (!await WriteManyAsync(idleWrites, "保存前切换所有轴到 Idle"))
+            {
+                return;
+            }
+
+            if (await InvokeCommandAsync("save_configuration", "保存配置至 ODrive 闪存"))
+            {
+                _pendingConfigurationWrites.Clear();
+                PendingConfigurationChanges.Clear();
+                IsSaveConfirmationOpen = false;
+            }
+        }
+        finally
+        {
+            IsSavingConfiguration = false;
+        }
     }
     [RelayCommand(CanExecute = nameof(CanRunDeviceOperation))]
     private async Task RefreshDevicesAsync()
@@ -514,6 +654,7 @@ public partial class MainWindowViewModel : ViewModelBase
             _schema = connected.schema;
             SchemaName = $"{_schema.DisplayName} / schema v{_schema.Version}";
             BuildParameterTree(_schema);
+            await LoadBrakeResistorSettingsAsync();
 
             ConnectionStatus = $"已连接：{_session.Info.DisplayName}";
             StartTelemetry(_session, connected.capabilities);
@@ -554,16 +695,14 @@ public partial class MainWindowViewModel : ViewModelBase
         var node = SelectedParameterNode;
         node.Status = "正在写入...";
         var converted = ConvertPendingValue(node.PendingValue, node.ValueType);
-        var results = await _session.WriteAsync([new PropertyWrite(node.Path, converted)], CancellationToken.None);
-        var result = results.FirstOrDefault();
-        if (result is { Success: true })
+        if (await WriteManyAsync([new PropertyWrite(node.Path, converted)], $"写入 {node.Path}", reportSuccess: false))
         {
             node.Status = "写入成功，正在回读...";
             await ReadParameterAsync(node);
         }
         else
         {
-            node.Status = $"写入失败：{result?.Error ?? "未知错误"}";
+            node.Status = $"写入失败：{LastCommandResult}";
         }
     }
 
@@ -764,8 +903,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 $"axis{axis}.encoder.count_in_cpr",
                 $"axis{axis}.motor.is_armed",
                 $"axis{axis}.motor.is_calibrated",
-                $"axis{axis}.motor.current_control.iq_measured",
-                $"axis{axis}.motor.current_control.iq_setpoint",
+                $"axis{axis}.motor.I_bus",
                 $"axis{axis}.motor.motor_thermistor.temperature",
                 $"axis{axis}.motor.fet_thermistor.temperature"
             ]);
@@ -813,18 +951,59 @@ public partial class MainWindowViewModel : ViewModelBase
         foreach (var (path, value) in frame.Values)
         {
             UpdateTelemetrySummary(path, value);
-
-            var existing = TelemetryValues.FirstOrDefault(item => item.Path == path);
-            var text = FormatTelemetryValue(value);
-            if (existing is null)
-            {
-                TelemetryValues.Add(new TelemetryValueViewModel(path, text));
-            }
-            else
-            {
-                existing.Value = text;
-            }
         }
+
+        if (frame.Values.TryGetValue("vbus_voltage", out var vbusVoltage))
+        {
+            AppendTelemetrySample(BusVoltageHistory, frame.Timestamp, ToDouble(vbusVoltage));
+            BusVoltageRangeText = FormatHistoryRange(BusVoltageHistory, "V");
+        }
+
+        UpdateAxisBusCurrentTrend(frame, 0, Axis0BusCurrentHistory);
+        UpdateAxisBusCurrentTrend(frame, 1, Axis1BusCurrentHistory);
+    }
+
+    private void UpdateAxisBusCurrentTrend(TelemetryFrame frame, int axis, ObservableCollection<TelemetrySample> history)
+    {
+        var path = $"axis{axis}.motor.I_bus";
+        if (!frame.Values.TryGetValue(path, out var busCurrent))
+        {
+            return;
+        }
+
+        var current = ToDouble(busCurrent);
+        AppendTelemetrySample(history, frame.Timestamp, current);
+        if (axis == 0)
+        {
+            Axis0BusCurrentText = $"{current:0.00} A";
+            Axis0BusCurrentRangeText = FormatHistoryRange(history, "A");
+        }
+        else
+        {
+            Axis1BusCurrentText = $"{current:0.00} A";
+            Axis1BusCurrentRangeText = FormatHistoryRange(history, "A");
+        }
+    }
+
+    private static void AppendTelemetrySample(ObservableCollection<TelemetrySample> history, DateTimeOffset timestamp, double value)
+    {
+        history.Add(new TelemetrySample(timestamp, value));
+        while (history.Count > TelemetryHistoryCapacity)
+        {
+            history.RemoveAt(0);
+        }
+    }
+
+    private static string FormatHistoryRange(IReadOnlyCollection<TelemetrySample> history, string unit)
+    {
+        if (history.Count == 0)
+        {
+            return "等待采样";
+        }
+
+        var minimum = history.Min(sample => sample.Value);
+        var maximum = history.Max(sample => sample.Value);
+        return $"范围 {minimum:0.##} – {maximum:0.##} {unit}";
     }
 
     private void UpdateTelemetrySummary(string path, object? value)
@@ -872,11 +1051,8 @@ public partial class MainWindowViewModel : ViewModelBase
             case "motor.is_calibrated":
                 MotorCalibratedText = FormatBooleanState(value, "已标定", "未标定");
                 break;
-            case "motor.current_control.iq_measured":
-                IqMeasuredText = $"{ToDouble(value):0.00} A";
-                break;
-            case "motor.current_control.iq_setpoint":
-                IqSetpointText = $"{ToDouble(value):0.00} A";
+            case "motor.I_bus":
+                SelectedAxisBusCurrentText = $"{ToDouble(value):0.00} A";
                 break;
             case "motor.motor_thermistor.temperature":
                 MotorTemperatureText = FormatTemperature(value);
@@ -959,12 +1135,79 @@ public partial class MainWindowViewModel : ViewModelBase
         await WriteManyAsync([new PropertyWrite(path, value)], $"写入 {path}", reportSuccess: false);
     }
 
-    private async Task WriteManyAsync(IReadOnlyList<PropertyWrite> writes, string displayName, bool reportSuccess = true)
+    private async Task LoadBrakeResistorSettingsAsync()
+    {
+        if (_session is null)
+        {
+            return;
+        }
+
+        var result = await _session.ReadAsync(
+            [
+                "config.enable_brake_resistor",
+                "config.brake_resistance",
+                "config.max_regen_current",
+                "config.enable_dc_bus_overvoltage_ramp",
+                "config.dc_bus_overvoltage_ramp_start",
+                "config.dc_bus_overvoltage_ramp_end"
+            ],
+            CancellationToken.None);
+
+        _isLoadingBrakeResistorSettings = true;
+        try
+        {
+            if (result.Values.TryGetValue("config.enable_brake_resistor", out var enabled))
+            {
+                BrakeResistorEnabled = enabled switch
+                {
+                    bool value => value,
+                    string value when bool.TryParse(value, out var parsed) => parsed,
+                    _ => ToDouble(enabled) != 0
+                };
+            }
+
+            if (result.Values.TryGetValue("config.brake_resistance", out var resistance))
+            {
+                BrakeResistance = ToDouble(resistance);
+            }
+
+            if (result.Values.TryGetValue("config.max_regen_current", out var maxRegenCurrent))
+            {
+                MaxRegenCurrent = ToDouble(maxRegenCurrent);
+            }
+
+            if (result.Values.TryGetValue("config.enable_dc_bus_overvoltage_ramp", out var rampEnabled))
+            {
+                DcBusOvervoltageRampEnabled = rampEnabled switch
+                {
+                    bool value => value,
+                    string value when bool.TryParse(value, out var parsed) => parsed,
+                    _ => ToDouble(rampEnabled) != 0
+                };
+            }
+
+            if (result.Values.TryGetValue("config.dc_bus_overvoltage_ramp_start", out var rampStart))
+            {
+                DcBusOvervoltageRampStart = ToDouble(rampStart);
+            }
+
+            if (result.Values.TryGetValue("config.dc_bus_overvoltage_ramp_end", out var rampEnd))
+            {
+                DcBusOvervoltageRampEnd = ToDouble(rampEnd);
+            }
+        }
+        finally
+        {
+            _isLoadingBrakeResistorSettings = false;
+        }
+    }
+
+    private async Task<bool> WriteManyAsync(IReadOnlyList<PropertyWrite> writes, string displayName, bool reportSuccess = true)
     {
         if (_session is null)
         {
             LastCommandResult = "设备未连接";
-            return;
+            return false;
         }
 
         if (reportSuccess)
@@ -972,19 +1215,57 @@ public partial class MainWindowViewModel : ViewModelBase
             LastCommandResult = $"{displayName}...";
         }
 
-        var results = await _session.WriteAsync(writes, CancellationToken.None);
-        var failed = results.FirstOrDefault(result => !result.Success);
-        if (failed is not null)
+        try
         {
-            LastCommandResult = $"{displayName}失败：{failed.Path} {failed.Error}";
-            return;
+            var results = await _session.WriteAsync(writes, CancellationToken.None);
+            for (var index = 0; index < writes.Count && index < results.Count; index++)
+            {
+                if (results[index].Success)
+                {
+                    TrackPersistentConfigurationWrite(writes[index]);
+                }
+            }
+
+            var failed = results.FirstOrDefault(result => !result.Success);
+            if (failed is not null)
+            {
+                LastCommandResult = $"{displayName}失败：{failed.Path} {failed.Error}";
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            LastCommandResult = $"{displayName}失败：{ex.Message}";
+            return false;
         }
 
         if (reportSuccess)
         {
             LastCommandResult = $"{displayName}完成";
         }
+
+        return true;
     }
+
+    private void TrackPersistentConfigurationWrite(PropertyWrite write)
+    {
+        if (!IsPersistentConfigurationPath(write.Path))
+        {
+            return;
+        }
+
+        _pendingConfigurationWrites[write.Path] = write;
+        PendingConfigurationChanges.Clear();
+        foreach (var pendingWrite in _pendingConfigurationWrites.Values.OrderBy(write => write.Path, StringComparer.OrdinalIgnoreCase))
+        {
+            var value = Convert.ToString(pendingWrite.Value, CultureInfo.InvariantCulture) ?? "null";
+            PendingConfigurationChanges.Add($"{pendingWrite.Path} = {value}");
+        }
+    }
+
+    private static bool IsPersistentConfigurationPath(string path) =>
+        path.StartsWith("config.", StringComparison.OrdinalIgnoreCase) ||
+        path.Contains(".config.", StringComparison.OrdinalIgnoreCase);
 
     private async Task RefreshSelectedAxisStatusAsync()
     {
@@ -1019,11 +1300,19 @@ public partial class MainWindowViewModel : ViewModelBase
         }
 
         LastCommandResult = $"{displayName}...";
-        var result = await _session.InvokeAsync(path, [], CancellationToken.None);
-        LastCommandResult = result.Success
-            ? $"{displayName}完成：{Convert.ToString(result.Result) ?? "OK"}"
-            : $"{displayName}失败：{result.Error ?? "未知错误"}";
-        return result.Success;
+        try
+        {
+            var result = await _session.InvokeAsync(path, [], CancellationToken.None);
+            LastCommandResult = result.Success
+                ? $"{displayName}完成：{Convert.ToString(result.Result) ?? "OK"}"
+                : $"{displayName}失败：{result.Error ?? "未知错误"}";
+            return result.Success;
+        }
+        catch (Exception ex)
+        {
+            LastCommandResult = $"{displayName}失败：{ex.Message}";
+            return false;
+        }
     }
 
     private static string FormatTelemetryValue(object? value) => value switch
@@ -1102,3 +1391,6 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private static string ToYesNo(bool value) => value ? "支持" : "不支持";
 }
+
+
+public sealed record TelemetrySample(DateTimeOffset Timestamp, double Value);

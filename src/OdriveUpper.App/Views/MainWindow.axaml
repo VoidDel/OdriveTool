@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:OdriveUpper.App.ViewModels"
+        xmlns:controls="using:OdriveUpper.App.Controls"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
@@ -472,8 +473,8 @@
 
                                 <Border Grid.Row="0" Grid.Column="1" Classes="card">
                                     <StackPanel>
-                                        <TextBlock Text="直轴测定电流 (IQ)" Classes="card-title"/>
-                                        <TextBlock Text="{Binding IqMeasuredText}" Classes="card-value"/>
+                                        <TextBlock Text="母线电流 (I_BUS)" Classes="card-title"/>
+                                        <TextBlock Text="{Binding IbusText}" Classes="card-value"/>
                                     </StackPanel>
                                 </Border>
 
@@ -506,27 +507,66 @@
                                 </Border>
                             </Grid>
 
-                            <TextBlock Text="全量参数快照 (实时更新)" Classes="section-title" Margin="6,18,6,6"/>
-                            <Border Classes="card">
-                                <StackPanel Spacing="4">
-                                    <Grid ColumnDefinitions="*,120" Margin="0,4" Opacity="0.5">
-                                        <TextBlock Grid.Column="0" Text="参数路径" FontStyle="Italic" FontSize="11" Foreground="{DynamicResource TextSecondary}"/>
-                                        <TextBlock Grid.Column="1" Text="当前反馈值" FontStyle="Italic" FontSize="11" Foreground="{DynamicResource TextSecondary}" HorizontalAlignment="Right"/>
+                            <TextBlock Text="母线电压与电流趋势" Classes="section-title" Margin="6,18,6,6"/>
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                                <Border Grid.Column="0" Classes="card">
+                                    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="10">
+                                        <StackPanel Spacing="2">
+                                            <TextBlock Text="电机母线电压 (VBUS)" Classes="card-header"/>
+                                            <TextBlock Text="最近约 30 秒 · 悬停时冻结曲线查看采样值" Foreground="{DynamicResource TextSecondary}" FontSize="11"/>
+                                        </StackPanel>
+                                        <controls:TelemetryTrendChart Grid.Row="1"
+                                                                      Height="210"
+                                                                      Samples="{Binding BusVoltageHistory}"
+                                                                      LineBrush="{DynamicResource AccentColor}"
+                                                                      GridBrush="{DynamicResource BorderBrush}"
+                                                                      HoverBrush="{DynamicResource TextPrimary}"/>
+                                        <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+                                            <TextBlock Text="{Binding BusVoltageRangeText}" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding VbusVoltageText}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas" FontWeight="SemiBold"/>
+                                        </Grid>
                                     </Grid>
-                                    <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Margin="0,0,0,6"/>
-                                    
-                                    <ItemsControl ItemsSource="{Binding TelemetryValues}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid ColumnDefinitions="*,180" Margin="0,4">
-                                                    <TextBlock Grid.Column="0" Text="{Binding Path}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas" FontSize="13" VerticalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="1" Text="{Binding Value}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" FontSize="13" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </Border>
+                                </Border>
+
+                                <Border Grid.Column="1" Classes="card">
+                                    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="10">
+                                        <StackPanel Spacing="2">
+                                            <TextBlock Text="双轴电机母线电流 (I_BUS)" Classes="card-header"/>
+                                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                                    <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource ChartAxis0Color}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Axis 0" Foreground="{DynamicResource TextSecondary}" FontSize="11"/>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                                    <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource ChartAxis1Color}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Axis 1" Foreground="{DynamicResource TextSecondary}" FontSize="11"/>
+                                                </StackPanel>
+                                                <TextBlock Text="· 悬停时冻结曲线查看采样值" Foreground="{DynamicResource TextMuted}" FontSize="11"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <controls:TelemetryTrendChart Grid.Row="1"
+                                                                      Height="210"
+                                                                      Samples="{Binding Axis0BusCurrentHistory}"
+                                                                      SecondarySamples="{Binding Axis1BusCurrentHistory}"
+                                                                      PrimaryLabel="Axis 0"
+                                                                      SecondaryLabel="Axis 1"
+                                                                      LineBrush="{DynamicResource ChartAxis0Color}"
+                                                                      SecondaryLineBrush="{DynamicResource ChartAxis1Color}"
+                                                                      GridBrush="{DynamicResource BorderBrush}"
+                                                                      HoverBrush="{DynamicResource TextPrimary}"/>
+                                        <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="12">
+                                            <Grid Grid.Column="0" ColumnDefinitions="*,Auto">
+                                                <TextBlock Text="{Binding Axis0BusCurrentRangeText}" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Axis0BusCurrentText}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas" FontWeight="SemiBold"/>
+                                            </Grid>
+                                            <Grid Grid.Column="1" ColumnDefinitions="*,Auto">
+                                                <TextBlock Text="{Binding Axis1BusCurrentRangeText}" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Axis1BusCurrentText}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas" FontWeight="SemiBold"/>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </Grid>
                         </StackPanel>
                     </ScrollViewer>
 
@@ -587,8 +627,8 @@
                                             <TextBlock Grid.Column="1" Text="{Binding ControllerErrorText}" Foreground="{DynamicResource StatusWarning}" FontFamily="Consolas"/>
                                         </Grid>
                                         <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-                                            <TextBlock Text="Motor Current (Iq)" Foreground="{DynamicResource TextSecondary}"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding IqMeasuredText}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" FontWeight="SemiBold"/>
+                                            <TextBlock Text="Bus Current (I_BUS)" Foreground="{DynamicResource TextSecondary}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding IbusText}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" FontWeight="SemiBold"/>
                                         </Grid>
                                         <Grid ColumnDefinitions="*,Auto" Margin="0,2">
                                             <TextBlock Text="Encoder Position" Foreground="{DynamicResource TextSecondary}"/>
@@ -666,12 +706,8 @@
                                                 <TextBlock Grid.Column="1" Text="{Binding MotorCalibratedText}" Foreground="{DynamicResource TextPrimary}" FontFamily="Consolas"/>
                                             </Grid>
                                             <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-                                                <TextBlock Text="Iq Measured" Foreground="{DynamicResource TextSecondary}"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding IqMeasuredText}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" FontWeight="SemiBold"/>
-                                            </Grid>
-                                            <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-                                                <TextBlock Text="Iq Setpoint" Foreground="{DynamicResource TextSecondary}"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding IqSetpointText}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" FontWeight="SemiBold"/>
+                                                <TextBlock Text="Selected Axis I_BUS" Foreground="{DynamicResource TextSecondary}"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding SelectedAxisBusCurrentText}" Foreground="{DynamicResource AccentColor}" FontFamily="Consolas" FontWeight="SemiBold"/>
                                             </Grid>
                                         </StackPanel>
                                     </Border>
@@ -721,6 +757,66 @@
                                                 </Grid>
                                                 <NumericUpDown Value="{Binding VelIntegratorGain}" Minimum="0" Maximum="0.1" Increment="0.0001" FormatString="0.######"/>
                                             </StackPanel>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Classes="card">
+                                        <StackPanel Spacing="12">
+                                            <TextBlock Text="制动电阻 (Brake Resistor)" Classes="card-header"/>
+                                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
+
+                                            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                                <StackPanel Spacing="2">
+                                                    <TextBlock Text="启用制动电阻" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="启用状态变更后需重启设备；出现错误时可清除错误后重试。" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding BrakeResistorEnabled}"/>
+                                            </Grid>
+
+                                            <StackPanel Spacing="6">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <TextBlock Text="制动电阻阻值 (brake_resistance)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding BrakeResistance, StringFormat={}{0:0.###} Ω}" Foreground="{DynamicResource TextPrimary}" FontWeight="Bold"/>
+                                                </Grid>
+                                                <NumericUpDown Value="{Binding BrakeResistance}" Minimum="0.001" Maximum="1000" Increment="0.1" FormatString="0.###"/>
+                                            </StackPanel>
+
+                                            <StackPanel Spacing="6">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                    <TextBlock Text="最大回馈电流 (max_regen_current)" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding MaxRegenCurrent, StringFormat={}{0:0.###} A}" Foreground="{DynamicResource TextPrimary}" FontWeight="Bold"/>
+                                                </Grid>
+                                                <NumericUpDown Value="{Binding MaxRegenCurrent}" Minimum="-200" Maximum="0" Increment="0.1" FormatString="0.###"/>
+                                            </StackPanel>
+
+                                            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,4"/>
+                                            <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                                                <StackPanel Spacing="2">
+                                                    <TextBlock Text="母线过压斜坡保护（实验性）" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="母线电压升高时额外增加制动电阻占空比。" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                                <ToggleSwitch Grid.Column="1" IsChecked="{Binding DcBusOvervoltageRampEnabled}"/>
+                                            </Grid>
+
+                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                                <StackPanel Grid.Column="0" Spacing="6">
+                                                    <Grid ColumnDefinitions="*,Auto">
+                                                        <TextBlock Text="斜坡起始电压" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding DcBusOvervoltageRampStart, StringFormat={}{0:0.##} V}" Foreground="{DynamicResource TextPrimary}" FontWeight="Bold"/>
+                                                    </Grid>
+                                                    <NumericUpDown Value="{Binding DcBusOvervoltageRampStart}" Minimum="0" Maximum="100" Increment="0.1" FormatString="0.##"/>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1" Spacing="6">
+                                                    <Grid ColumnDefinitions="*,Auto">
+                                                        <TextBlock Text="斜坡终止电压" Foreground="{DynamicResource TextSecondary}" FontSize="12"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding DcBusOvervoltageRampEnd, StringFormat={}{0:0.##} V}" Foreground="{DynamicResource TextPrimary}" FontWeight="Bold"/>
+                                                    </Grid>
+                                                    <NumericUpDown Value="{Binding DcBusOvervoltageRampEnd}" Minimum="0" Maximum="100" Increment="0.1" FormatString="0.##"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <TextBlock Text="终止电压必须高于起始电压，且低于硬件允许的过压跳闸值；起始电压不要低于平时母线电压。" Foreground="{DynamicResource StatusWarning}" FontSize="11" TextWrapping="Wrap"/>
+                                            <TextBlock Text="请按实际接入的阻值填写；未接入制动电阻时不要启用，避免损坏电源。修改后请保存配置。" Foreground="{DynamicResource StatusWarning}" FontSize="11" TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </Border>
 
@@ -1106,5 +1202,41 @@
         </Grid>
         </Border>
         </Grid>
+
+        <Border ZIndex="100"
+                IsVisible="{Binding IsSaveConfirmationOpen}"
+                Background="#99000000">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24">
+                <Border Classes="card" Width="640" MaxHeight="560" Padding="24" Background="{DynamicResource MainBackground}">
+                    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="16">
+                        <StackPanel Grid.Row="0" Spacing="6">
+                            <TextBlock Text="确认保存配置" Foreground="{DynamicResource TextPrimary}" FontSize="20" FontWeight="SemiBold"/>
+                            <TextBlock Text="以下参数将在确认后写入设备，并保存至 ODrive 闪存。" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <Border Grid.Row="1" Background="{DynamicResource SidebarBackground}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="10">
+                            <Grid RowDefinitions="Auto,*" RowSpacing="8">
+                                <TextBlock Text="待保存参数" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold"/>
+                                <ScrollViewer Grid.Row="1" MaxHeight="320" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding PendingConfigurationChanges}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" Foreground="{DynamicResource TextSecondary}" FontFamily="Consolas" FontSize="12" Margin="0,3" TextWrapping="Wrap"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Grid>
+                        </Border>
+
+                        <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                            <TextBlock Grid.Column="0" Text="未检测到改动时仍会执行保存操作。" Foreground="{DynamicResource TextMuted}" FontSize="11" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                            <Button Grid.Column="1" Content="取消" Command="{Binding CancelSaveConfigurationCommand}"/>
+                            <Button Grid.Column="2" Content="确认写入并保存" Command="{Binding ConfirmSaveConfigurationCommand}" Classes="warning"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
     </Grid>
 </Window>
